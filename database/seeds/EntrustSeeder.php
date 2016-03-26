@@ -4,6 +4,7 @@ use Illuminate\Database\Seeder;
 use App\Role;
 use App\User;
 use App\Permission;
+use App\Patient;
 
 class EntrustSeeder extends Seeder
 {
@@ -20,13 +21,13 @@ class EntrustSeeder extends Seeder
         $user1 = new User();
         $user1->name         = 'andreas';
         $user1->email = 'andreas@ohgeorgie.com';
-        $user1->password  = bcrypt('password');
+        $user1->password  = Hash::make('password');
         $user1->save();
      
         $user2 = new User();
         $user2->name         = 'janice';
         $user2->email = 'janice@ohgeorgie.com';
-        $user2->password  = bcrypt('password');
+        $user2->password  = Hash::make('password');
         $user2->save();
      
         // Define some roles.
@@ -43,14 +44,14 @@ class EntrustSeeder extends Seeder
         $admin->description  = 'User is allowed to manage and edit other users'; // optional
         $admin->save();
         
-        $guest = new Role();
-        $guest->name = 'guest';
-        $guest->display_name = 'Guest';
-        $guest->description = 'Guest is allowed to view but not edit';
-        $guest->save();
+        $subscriber = new Role();
+        $subscriber->name = 'subscriber';
+        $subscriber->display_name = 'Subscriber';
+        $subscriber->description = 'Subscriber is allowed to view but not edit';
+        $subscriber->save();
         
         // Assign an administrator role.
-        
+        /*
         $first_user = User::where('name', '=', 'andreas')->first();
         // role attach alias
         //$user->attachRole($admin); // parameter can be an Role object, array, or id
@@ -58,7 +59,7 @@ class EntrustSeeder extends Seeder
         $first_user->roles()->attach($admin->id); // id only
         
         $second_user = User::where('name', '=', 'janice')->first();
-        $second_user->roles()->attach($guest->id);
+        $second_user->roles()->attach($subscriber->id);
         
         // Attach some permissions
         
@@ -81,6 +82,13 @@ class EntrustSeeder extends Seeder
         
         $owner->attachPermissions(array($createPost, $editUser));
         // equivalent to $owner->perms()->sync(array($createPost->id, $editUser->id));
+        */
+        $patient = new Patient;
+        $patient->first_name = 'Andreas';
+        $patient->last_name = 'Georghiou';
+        $patient->modified_by = 1;
+        $patient->created_by = 1;
+        $patient->save();
         
     }
 }

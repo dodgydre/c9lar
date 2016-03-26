@@ -1,4 +1,6 @@
 <?php
+use App\User;
+use App\Patient;
 
 /*
 |--------------------------------------------------------------------------
@@ -10,10 +12,9 @@
 | and give it the controller to call when that URI is requested.
 |
 */
+    Route::get('/user/{id}', 'PageController@getUserModifiedPatients');
 
-//Route::get('/', function () {
-//    return view('welcome');
-//});
+    Route::get('/patient/{id}', 'PageController@getPatientsModifiedBy');
 
 /*
 |--------------------------------------------------------------------------
@@ -26,6 +27,7 @@
 |
 */
 
+
 Route::group(['middleware' => 'web'], function () {
     Route::auth();
 
@@ -34,6 +36,21 @@ Route::group(['middleware' => 'web'], function () {
     });
 
     Route::get('/accessTest', 'PageController@getAccessTest');
+    
+    Route::get('/tester', function() {
+       return view('tester'); 
+    });
+    
+    Route::get('/admin', function() {
+           if(!empty(Auth::user()) && Auth::user()->hasRole('admin')) {
+                return view('tester'); 
+           }
+           else {
+               return view('welcome');
+           }
+    });
+    
 
+    
     Route::get('/home', 'HomeController@index');
 });
