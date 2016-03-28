@@ -30,7 +30,7 @@
 
               </div>
               <div class="col-sm-6">
-                {{ Form::submit('Save Procedure', ['class'=>'btn btn-success btn-block']) }}
+                {{ Form::button('<i class="fa fa-floppy-o"></i> &nbsp;&nbsp;Save Procedure', ['class'=>'btn btn-success btn-block', 'type'=>'submit']) }}
               </div>
             </div>
           {!! Form::close() !!}

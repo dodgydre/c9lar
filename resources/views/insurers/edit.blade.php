@@ -69,7 +69,7 @@
                 </div>
               </div>
             </div>
-            
+
             <div class="row">
               <hr />
               <div class="col-sm-6">
@@ -77,7 +77,7 @@
 
               </div>
               <div class="col-sm-6">
-                {{ Form::submit('Save Insurer', ['class'=>'btn btn-success btn-block']) }}
+                {{ Form::button('<i class="fa fa-floppy-o"></i> &nbsp;&nbsp;Save Insurer', ['class'=>'btn btn-success btn-block', 'type'=>'submit']) }}
               </div>
             </div>
           {!! Form::close() !!}
