@@ -28,7 +28,7 @@
             <tbody>
               @foreach($insurers as $insurer)
                 <tr>
-                  <th> {{ $insurer->id }}</th>
+                  <td> {{ $insurer->id }}</td>
                   <td> {{ $insurer->code }}</td>
                   <td> {{ $insurer->name }}</td>
                   <td> {{ $insurer->phone }}</td>

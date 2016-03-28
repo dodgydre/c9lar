@@ -10,6 +10,7 @@ use Session;
 
 class ProcedureController extends Controller
 {
+    // Change these so that delete only works for admin?
     public function __construct()
     {
       $this->middleware('auth', ['only'=>[

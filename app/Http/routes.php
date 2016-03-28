@@ -14,8 +14,6 @@ use App\Patient;
 */
     Route::get('/user/{id}', 'PageController@getUserModifiedPatients');
 
-    Route::get('/patient/{id}', 'PageController@getPatientsModifiedBy');
-
 /*
 |--------------------------------------------------------------------------
 | Application Routes
@@ -52,6 +50,7 @@ Route::group(['middleware' => 'web'], function () {
 
     Route::resource('procedures', 'ProcedureController');
     Route::resource('insurers', 'InsurerController');
-
+    Route::resource('patients', 'PatientController');
+    
     Route::get('/home', 'HomeController@index');
 });

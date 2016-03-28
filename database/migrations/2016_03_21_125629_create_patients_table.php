@@ -17,26 +17,27 @@ class CreatePatientsTable extends Migration
             $table->string('chart_number');
             $table->string('last_name');
             $table->string('first_name');
-            $table->string('middle_name');
-            $table->string('street1');
-            $table->string('street2');
-            $table->string('province');
-            $table->string('postcode', 10);
-            $table->string('country', 25);
-            $table->string('phone1');
-            $table->string('phone2');
-            $table->string('phone3');
-            $table->string('phone4');
-            $table->string('phone5');
-            $table->string('gender',1);
-            $table->date('dob');
-            $table->string('email');
-            $table->integer('provider_id');
-            $table->date('date_of_last_pmt');
-            $table->decimal('last_pmt', 6, 2);
-            $table->decimal('remaining_balance', 6, 2);
-            $table->integer('created_by');
-            $table->integer('modified_by');
+            $table->string('middle_name')->nullable();
+            $table->string('street1')->nullable();
+            $table->string('street2')->nullable();
+            $table->string('city')->nullable();
+            $table->string('province')->nullable();
+            $table->string('postcode', 10)->nullable();
+            $table->string('country', 25)->nullable();
+            $table->string('phone1')->nullable();
+            $table->string('phone2')->nullable();
+            $table->string('phone3')->nullable();
+            $table->string('phone4')->nullable();
+            $table->string('phone5')->nullable();
+            $table->string('gender',1)->nullable();
+            $table->date('dob')->nullable();
+            $table->string('email')->nullable();
+            $table->integer('provider_id')->nullable();  // Can remove this probably?
+            $table->date('date_of_last_pmt')->nullable();
+            $table->decimal('last_pmt', 6, 2)->nullable();
+            $table->decimal('remaining_balance', 6, 2)->nullable();
+            $table->integer('created_by'); // remove ?
+            $table->integer('modified_by'); // remove ?
             $table->timestamps();
         });
     }

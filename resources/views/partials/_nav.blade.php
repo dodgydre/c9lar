@@ -19,15 +19,20 @@
             <div class="collapse navbar-collapse" id="app-navbar-collapse">
                 <!-- Left Side Of Navbar -->
                 <ul class="nav navbar-nav">
-                    <li><a href="{{ url('/home') }}">Home</a></li>
+                    <li class="{{ set_active(['home', '/'], 'active') }}"><a href="{{ url('/home') }}">Home</a></li>
+                    @if (!Auth::guest())
+                        <li class="{{ set_active(['/procedures/*']) }}"><a href="{{ url('/procedures') }}">Procedures</a></li>
+                        <li class="{{ set_active(['/insurers/*']) }}"><a href="{{ url('/insurers') }}">Insurers</a></li>
+                        <li class="{{ set_active(['/patients/*']) }}"><a href="{{ url('/patients') }}">Patients</a></li>
+                    @endif
                 </ul>
 
                 <!-- Right Side Of Navbar -->
                 <ul class="nav navbar-nav navbar-right">
                     <!-- Authentication Links -->
                     @if (Auth::guest())
-                        <li><a href="{{ url('/login') }}">Login</a></li>
-                        <li><a href="{{ url('/register') }}">Register</a></li>
+                        <li class="{{ set_active([ 'login' ]) }}"><a href="{{ url('/login') }}">Login</a></li>
+                        <li class="{{ set_active([ 'register' ]) }}"><a href="{{ url('/register') }}">Register</a></li>
                     @else
                         <li class="dropdown">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">

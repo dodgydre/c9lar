@@ -31,7 +31,7 @@
                 <tbody>
                   @foreach($procedures as $procedure)
                     <tr>
-                      <th> {{ $procedure->id }}</th>
+                      <td> {{ $procedure->id }}</td>
                       <td> {{ $procedure->code }}</td>
                       <td> {{ $procedure->type }}</td>
                       <td> {{ $procedure->description }}</td>

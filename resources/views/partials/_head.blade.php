@@ -11,8 +11,11 @@
 <!-- Styles -->
 <!--<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet">-->
 
-{{ Html::style('css/bootstrap.css') }}
-{{ Html::style('css/pbcc.css') }}
+<link rel="stylesheet" href="{{ URL::asset('css/bootstrap.css') }}">
+<link rel="stylesheet" href="{{ URL::asset('css/pbcc.css') }}">
+
+{{-- Html::style('css/bootstrap.css') --}}
+{{-- Html::style('css/pbcc.css') --}}
 {{-- <link href="{{ elixir('css/app.css') }}" rel="stylesheet"> --}}
 
 <style>
