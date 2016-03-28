@@ -36,21 +36,22 @@ Route::group(['middleware' => 'web'], function () {
     });
 
     Route::get('/accessTest', 'PageController@getAccessTest');
-    
+
     Route::get('/tester', function() {
-       return view('tester'); 
+       return view('tester');
     });
-    
+
     Route::get('/admin', function() {
            if(!empty(Auth::user()) && Auth::user()->hasRole('admin')) {
-                return view('tester'); 
+                return view('tester');
            }
            else {
                return view('welcome');
            }
     });
-    
 
-    
+    Route::resource('procedures', 'ProcedureController');
+    Route::resource('insurers', 'InsurerController');
+
     Route::get('/home', 'HomeController@index');
 });
