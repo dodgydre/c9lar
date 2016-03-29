@@ -8,7 +8,53 @@
   <div class="col-md-8">
     <h1> Procedure Code: {{ $procedure->code }}</h1>
 
-    <p> Procedure Type: {{ $procedure->type }} </p>
+    <p> Procedure Type: 
+      <?php
+        switch($procedure->type) {
+          case 'A':
+            echo "Procedure Charge";
+            break;
+          case 'B':
+            echo "Product Charge";
+            break;
+          case 'H':
+            echo "Billing Charge";
+            break;
+          case 'I':
+            echo "Insurance Payment";
+            break;
+          case 'J':
+            echo "Cash Co-Payment";
+            break;
+          case 'K':
+            echo "Check Co-Payment";
+            break;
+          case 'L':
+            echo "Credit Card Co-Payment";
+            break;
+          case 'M':
+            echo "Cash Payment";
+            break;
+          case 'N':
+            echo "Check Payment";
+            break;
+          case 'O':
+            echo "Credit Card Payment";
+            break;
+          case 'P':
+            echo "Deductible";
+            break;
+          case 'S':
+            echo "Adjustment";
+            break;
+          case 'T':
+            echo "Insurance Adjustment";
+            break;
+          default:
+            echo '';
+            break;
+        } 
+      ?> ({{ $procedure->type }}) </p>
     <p> Procedure Description: {{ $procedure->description }} </p>
     <p> Procedure Amount: ${{ $procedure->amount }} </p>
   </div>
