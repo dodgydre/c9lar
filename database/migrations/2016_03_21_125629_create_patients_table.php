@@ -27,17 +27,17 @@ class CreatePatientsTable extends Migration
             $table->string('phone1')->nullable();
             $table->string('phone2')->nullable();
             $table->string('phone3')->nullable();
-            $table->string('phone4')->nullable();
-            $table->string('phone5')->nullable();
-            $table->string('gender',1)->nullable();
+            //$table->string('phone4')->nullable();
+            //$table->string('phone5')->nullable();
+            $table->string('gender',10)->nullable();
             $table->date('dob')->nullable();
             $table->string('email')->nullable();
-            $table->integer('provider_id')->nullable();  // Can remove this probably?
+            //$table->integer('provider_id')->nullable();  // Can remove this probably?
             $table->date('date_of_last_pmt')->nullable();
             $table->decimal('last_pmt', 6, 2)->nullable();
             $table->decimal('remaining_balance', 6, 2)->nullable();
-            $table->integer('created_by'); // remove ?
-            $table->integer('modified_by'); // remove ?
+            //$table->integer('created_by'); // remove ?
+            //$table->integer('modified_by'); // remove ?
             $table->timestamps();
         });
     }

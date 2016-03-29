@@ -36,9 +36,9 @@
                       <td> {{ $patient->chart_number }}</td>
                       <td> {{ $patient->first_name }}</td>
                       <td> {{ $patient->last_name }}</td>
-                      <td> {{ date('M j, Y', strtotime($patient->date_of_last_pmt)) }}</td>
-                      <td> ${{ $patient->last_pmt }}</td>
-                      <td> ${{ $patient->remaining_balance }}</td>
+                      <td> {{ isset($patient->date_of_last_pmt) ? date('M j, Y', strtotime($patient->date_of_last_pmt)) : '-' }} </td>
+                      <td> {{ isset($patient->last_pmt) ? '$' . $patient->last_pmt : '-' }}</td>
+                      <td> {{ isset($patient->remaining_balance) ? '$' . $patient->remaining_balance : '-' }}</td>
                       <td>
                       <form method='POST' action="{{ route('patients.destroy', [$patient->id]) }}">
                         {!! csrf_field() !!}

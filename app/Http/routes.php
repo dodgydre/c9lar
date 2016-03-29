@@ -50,7 +50,14 @@ Route::group(['middleware' => 'web'], function () {
 
     Route::resource('procedures', 'ProcedureController');
     Route::resource('insurers', 'InsurerController');
+
+    Route::get('patients/{chart_number}', 'PatientController@showChartNum')
+      ->where('chart_number', '[A-Z]{5}[0-9]{3}');
+    //Route::get('patients/{chart_number}/edit', 'PatientController@editChartNum')
+    //  ->where('chart_number', '[A-Z]{5}[0-9]{3}');
     Route::resource('patients', 'PatientController');
-    
+
+
+
     Route::get('/home', 'HomeController@index');
 });

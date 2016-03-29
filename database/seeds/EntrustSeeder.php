@@ -88,11 +88,16 @@ class EntrustSeeder extends Seeder
         // equivalent to $owner->perms()->sync(array($createPost->id, $editUser->id));
 
         $patient = new Patient;
+        $patient->chart_number = 'GEOAN000';
         $patient->first_name = 'Andreas';
         $patient->last_name = 'Georghiou';
-        $patient->modified_by = 1;
-        $patient->created_by = 1;
         $patient->save();
+
+        $patient1 = new Patient;
+        $patient1->chart_number = 'GRAJA000';
+        $patient1->first_name = 'Janice';
+        $patient1->last_name = 'Grace';
+        $patient1->save();
 
         $procedure1 = new Procedure;
         $procedure1->code = 'CA';

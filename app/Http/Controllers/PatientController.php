@@ -22,7 +22,7 @@ class PatientController extends Controller
         ]]);
         // also 'except' for views that don't go through the middleware.
     }
-    
+
     /**
      * Display a listing of the resource.
      *
@@ -66,16 +66,14 @@ class PatientController extends Controller
           'phone1' => 'max:255',
           'phone2' => 'max:255',
           'phone3' => 'max:255',
-          'phone4' => 'max:255',
-          'phone5' => 'max:255',
-          'gender' => 'max:1',
+          'gender' => 'max:10',
           'email' => 'max:255'
         ));
-        
+
         $newChartStart = strtoupper(substr($request->last_name, 0, 3) . substr($request->first_name, 0, 2));
         $charts = Patient::where('chart_number', 'LIKE', $newChartStart . '%')->get();
-        $endNumber = (string)count($charts)+1;
-        
+        $endNumber = (string)count($charts);  // include 000 as a chart number
+
         $newChart = $newChartStart . str_pad($endNumber, 3, "0", STR_PAD_LEFT);
 
         $patient = new Patient;
@@ -93,8 +91,6 @@ class PatientController extends Controller
         $patient->phone1 = $request->phone1;
         $patient->phone2 = $request->phone2;
         $patient->phone3 = $request->phone3;
-        $patient->phone4 = $request->phone4;
-        $patient->phone5 = $request->phone5;
         $patient->gender = $request->gender;
         $patient->dob = $request->dob;
         $patient->email = $request->email;
@@ -115,7 +111,15 @@ class PatientController extends Controller
      */
     public function show($id)
     {
-        //
+      $patient = Patient::find($id);
+      return view('patients.show')->withPatient($patient);
+    }
+
+
+    public function showChartNum($chart_number)
+    {
+      $patient = Patient::where('chart_number', '=', $chart_number)->first();
+      return view('patients.show')->withPatient($patient);
     }
 
     /**
@@ -126,7 +130,13 @@ class PatientController extends Controller
      */
     public function edit($id)
     {
-        //
+      $patient = Patient::find($id);
+      return view('patients.edit')->withPatient($patient);
+    }
+    public function editChartNum($chart_number)
+    {
+      $patient = Patient::where('chart_number', '=', $chart_number)->first();
+      return view('patients.edit')->withPatient($patient);
     }
 
     /**
@@ -138,7 +148,48 @@ class PatientController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+      $this->validate($request, array(
+        /*'code' => 'required|max:8|unique:procedures,code',*/
+        'first_name' => 'required|max:255',
+        'last_name' => 'required|max:255',
+        'middle_name' => 'max:255',
+        'street1' => 'max:255',
+        'street2' => 'max:255',
+        'city'    => 'max:255',
+        'province' => 'max:255',
+        'postcode' => 'max:10',
+        'country'=> 'max:25',
+        'phone1' => 'max:255',
+        'phone2' => 'max:255',
+        'phone3' => 'max:255',
+        'gender' => 'max:10',
+        'email' => 'max:255'
+      ));
+
+      $patient = Patient::find($id);
+
+      //$patient->chart_number = $newChart;
+      $patient->first_name = $request->first_name;
+      $patient->middle_name = $request->middle_name;
+      $patient->last_name = $request->last_name;
+      $patient->street1 = $request->street1;
+      $patient->street2 = $request->street2;
+      $patient->city = $request->city;
+      $patient->province = $request->province;
+      $patient->postcode = $request->postcode;
+      $patient->country = $request->country;
+      $patient->phone1 = $request->phone1;
+      $patient->phone2 = $request->phone2;
+      $patient->phone3 = $request->phone3;
+      $patient->gender = $request->gender;
+      $patient->dob = $request->dob;
+      $patient->email = $request->email;
+
+      $patient->save();
+
+      Session::flash('success', 'The patient was updated');
+
+      return redirect()->route('patients.show', $patient->id);
     }
 
     /**
@@ -149,6 +200,9 @@ class PatientController extends Controller
      */
     public function destroy($id)
     {
-        //
+      $patient = Patient::find($id);
+      $patient->delete();
+      Session::flash('success', 'The patient was deleted');
+      return redirect()->route('patients.index');
     }
 }

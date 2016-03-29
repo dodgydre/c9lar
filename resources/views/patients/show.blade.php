@@ -1,33 +1,63 @@
 @extends('layouts.app')
 
-@section('title', '| Procedure')
+@section('title', '| Patient')
 
 @section('content')
 
   <div class="row">
   <div class="col-md-8">
-    <h1> Procedure Code: {{ $procedure->code }}</h1>
+    <h1> {{ $patient->chart_number }}</h1>
 
-    <p> Procedure Type: {{ $procedure->type }} </p>
-    <p> Procedure Description: {{ $procedure->description }} </p>
-    <p> Procedure Amount: ${{ $procedure->amount }} </p>
+    <p> <strong>Name:</strong> {{ $patient->first_name }} {{ $patient->middle_name }} {{$patient->last_name }}</p>
+    <p> <strong>Gender:</strong> {{ $patient->gender }} </p>
+
+    <p> <strong>Date of Birth:</strong> {{ $patient->dob }}</p>
+
+    <p> <strong>Address:</strong> </p>
+    <p>
+      @if(!empty($patient->street1))
+        &nbsp;&nbsp;{{ $patient->street1 }}<br />
+      @endif
+      @if(!empty($patient->street2))
+        &nbsp;&nbsp;{{ $patient->street2 }}<br />
+      @endif
+      @if(!empty($patient->city))
+        &nbsp;&nbsp;{{ $patient->city }}
+      @endif
+      @if(!empty($patient->prov))
+        &nbsp;&nbsp; {{ $patient->prov }}<br />
+      @elseif(!empty($patient->city))
+        <br />
+      @endif
+      @if(!empty($patient->postcode))
+        &nbsp;&nbsp;{{ $patient->postcode }}<br />
+      @endif
+      @if(!empty($patient->country))
+        &nbsp;&nbsp;{{ $patient->country }}<br />
+      @endif
+    </p>
+    <p> <strong>Phone 1:</strong> {{ $patient->phone1 }} </p>
+    <p> <strong>Phone 2:</strong> {{ $patient->phone2 }} </p>
+    <p> <strong>Phone 3:</strong> {{ $patient->phone3 }} </p>
+    <p> <strong>Email:</strong> {{ $patient->email }} </p>
   </div>
+
   <div class="col-md-4">
     <div class="well">
         <dl>
           <dt>Created at:</dt>
-          <dd>{{ date('F j, Y, g:i a' ,strtotime($procedure->created_at)) }} </dd>
+          <dd>{{ date('F j, Y, g:i a' ,strtotime($patient->created_at)) }} </dd>
           <dt>Last updated at:</dt>
-          <dd>{{ date('F j, Y, g:i a' ,strtotime($procedure->updated_at)) }} </dd>
+          <dd>{{ date('F j, Y, g:i a' ,strtotime($patient->updated_at)) }} </dd>
         </dl>
         <hr />
 
         <div class="row">
           <div class="col-sm-6">
-            <a href="{{ route('procedures.edit', $procedure->id) }}" class="btn btn-block btn-primary"><i class="fa fa-pencil-square-o"></i> Edit</a>
+            <a href="{{ route('patients.edit', $patient->id) }}" class="btn btn-block btn-primary"><i class="fa fa-pencil-square-o"></i> Edit</a>
           </div>
           <div class="col-sm-6">
-            <form method='POST' action="{{ route('procedures.destroy', [$procedure->id]) }}">
+            <form method='POST' action="{{ route('patients.destroy', [$patient->id]) }}">
               {!! csrf_field() !!}
               {!! method_field('DELETE') !!}
               @if(Entrust::hasRole('admin'))
@@ -37,7 +67,7 @@
 
           </div>
           <div class="col-sm-12">
-            <a href="{{route('procedures.index')}}" class="btn btn-default btn-block btn-h1-spacing"><i class="fa fa-arrow-left"></i> Show All Procedures</a>
+            <a href="{{route('patients.index')}}" class="btn btn-default btn-block btn-h1-spacing"><i class="fa fa-arrow-left"></i> Show All Patients</a>
           </div>
         </div>
 
@@ -45,5 +75,6 @@
 
   </div>
 </div>
+
 
 @endsection

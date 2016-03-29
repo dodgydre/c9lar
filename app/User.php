@@ -29,12 +29,12 @@ class User extends Authenticatable
         'password', 'remember_token',
     ];
 
-
+    /*
     public function hasModified() {
         return $this->hasMany('App\Patient', 'modified_by', 'id');
     }
 
     public function hasCreated() {
         return $this->hasMany('App\Patient', 'created_by', 'id');
-    }
+    }*/
 }
