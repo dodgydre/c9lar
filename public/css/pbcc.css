@@ -5,3 +5,13 @@
 .form-spacing-top {
   margin-top: 30px;
 }
+
+.charges-panel {
+  height: 250px;
+  overflow-y: scroll;
+}
+
+.payments-panel {
+  height: 250px;
+  overflow-y: scroll;
+}

@@ -52,7 +52,7 @@ Route::group(['middleware' => 'web'], function () {
     Route::resource('procedures', 'ProcedureController');
     // InsurerController Resource - Good
     Route::resource('insurers', 'InsurerController');
-    
+
     // Additional route for patient using {chart_number} instead of {id}
     Route::get('patients/{chart_number}', 'PatientController@showChartNum')
       ->where('chart_number', '[A-Z]{5}[0-9]{3}');
@@ -66,11 +66,11 @@ Route::group(['middleware' => 'web'], function () {
         $patient = Patient::find($id);
         $transactions = $patient->transactions;
         foreach($transactions as $transaction) {
-           echo $transaction->id . ': $' . $transaction->amount . '<br />';
+           echo $transaction->id . ' - ' . $transaction->procedure_description . ': $' . $transaction->amount . '<br />';
         }
        return 'end';
     });
-    
+
     // List all patient CHARGES (+ve amount)
     Route::get('/patients/{id}/charges', function($id) {
         $patient = Patient::find($id);
@@ -80,7 +80,7 @@ Route::group(['middleware' => 'web'], function () {
         }
        return 'end';
     });
-    
+
     Route::get('/patients/{id}/payments', function($id) {
         $patient = Patient::find($id);
         $payments = $patient->payments;
@@ -89,6 +89,11 @@ Route::group(['middleware' => 'web'], function () {
         }
        return 'end';
     });
+
+    Route::post('/patients/addCharge', [
+        'as' => 'patients.addCharge',
+      'uses' => 'PatientController@addCharge'
+    ]);
 
     Route::get('/home', 'HomeController@index');
 });

@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 
 use App\Http\Requests;
 use App\Patient;
+use App\Transaction;
+use App\Procedure;
 use Session;
 
 class PatientController extends Controller
@@ -205,4 +207,44 @@ class PatientController extends Controller
       Session::flash('success', 'The patient was deleted');
       return redirect()->route('patients.index');
     }
+
+    /**
+     *  Add a new Charge to the Transactions table for a given patient
+     *
+     * @param int $id (patient_id)
+     * @return \Illuminate\Http\Response
+     */
+    public function addCharge(Request $request)
+    {
+      $this->validate($request, array(
+        /*'code' => 'required|max:8|unique:procedures,code',*/
+        'date_from' => 'required',
+        'units' => 'required|numeric',
+        'amount' => 'required|numeric',
+        'total' => 'required|numeric',
+        'attending_provider' => 'required',
+        'procedure_code'    => 'required|max:8',
+        'procedure_description' => 'required'
+      ));
+
+      $patient = Patient::find($request->patient_id);
+      $procedure = Procedure::where('code', '=', $request->procedure_code)->first();
+      $charge = new Transaction;
+
+      $charge->patient_id = $request->patient_id;
+      $charge->chart_number = $patient->chart_number;
+      $charge->date_from = $request->date_from;
+      $charge->attending_provider = $request->attending_provider;
+      $charge->procedure_code = $request->procedure_code;
+      $charge->procedure_description = $procedure->description;
+      $charge->transaction_type = $procedure->type;
+      $charge->units = $request->units;
+      $charge->amount = $request->amount;
+      $charge->total = $request->total;
+      $charge->unapplied_amount = $request->total;
+
+      $charge->save();
+      return redirect()->route('patients.show', [$patient->id]);
+    }
+
 }
