@@ -22,13 +22,13 @@ class Patient extends Model
     // Charges are Transactions where the amount is +ve
     public function charges()
     {
-        return $this->hasMany('App\Transaction')->where('transactions.amount', '>', '0')->orderBy('transactions.date_from', 'desc')->orderBy('transactions.updated_at', 'desc');
+        return $this->hasMany('App\Transaction')->where('transactions.total', '>', '0')->orderBy('transactions.date_from', 'desc')->orderBy('transactions.updated_at', 'desc');
     }
 
     // Payments are Transactions where the amount is -ve
     public function payments()
     {
-        return $this->hasMany('App\Transaction')->where('transactions.amount', '<', '0')->orderBy('transactions.date_from', 'desc')->orderBy('transactions.updated_at', 'desc');
+        return $this->hasMany('App\Transaction')->where('transactions.total', '<', '0')->orderBy('transactions.date_from', 'desc')->orderBy('transactions.updated_at', 'desc');
     }
 
     // Created By:

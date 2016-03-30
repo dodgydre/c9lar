@@ -46,6 +46,7 @@
     </ul>
   </div>
 
+<!-- SOME INFO  -->
   <div class="col-md-4">
     <div class="well">
         <dl>
@@ -53,6 +54,8 @@
           <dd>{{ date('F j, Y, g:i a' ,strtotime($patient->created_at)) }} </dd>
           <dt>Last updated at:</dt>
           <dd>{{ date('F j, Y, g:i a' ,strtotime($patient->updated_at)) }} </dd>
+          <dt>Remaining Balance</dt>
+          <dd>{{ $patient->remaining_balance }}</dd>
         </dl>
         <hr />
 
@@ -106,12 +109,24 @@
               {!! Form::open(array('route' => 'patients.addCharge')) !!}
               {{ Form::hidden('patient_id', $patient->id) }}
               <td> {{ Form::date('date_from', \Carbon\Carbon::now(), array('class'=>'form-control')) }} </td>
-              <td> {{ Form::text('procedure_code', null, array('class'=>'form-control')) }} </td>
-              <td> {{ Form::text('procedure_description', null, array('class'=>'form-control')) }} </td>
+              <td>
+                <input type="hidden" class="form-control" name="procedure_code" id="charge_procedure_code_hid" />
+                <input type="text" class="form-control" disabled id="charge_procedure_code_dis" />
+              </td>
+              <td> <select class="form-control" name="procedure_description" id="charge_procedure_description">
+                <option disabled selected value> -- Select Procedure --</option>
+                @foreach($procedures as $procedure)
+                  <option data-amount="{{$procedure->amount}}" value="{{$procedure->code}}">{{$procedure->description}}</option>
+                @endforeach
+                </select>
+              </td>
               <td> {{ Form::select('attending_provider', array('JEG' => 'Dr. Grace', 'CH'=>'C. Hounsell'), null, array('class'=>'form-control')) }} </td>
-              <td> {{ Form::text('units', null, array('class'=>'form-control')) }} </td>
-              <td> {{ Form::text('amount', null, array('class'=>'form-control')) }} </td>
-              <td> {{ Form::text('total', null, array('class'=>'form-control')) }} </td>
+              <td> {{ Form::text('units', 1, array('class'=>'form-control', 'id'=>'charge_units')) }} </td>
+              <td> {{ Form::text('amount', null, array('class'=>'form-control', 'id'=>'charge_amount')) }} </td>
+              <td>
+                <input type="hidden" name="total" id="charge_total_hid" />
+                <input type="text" id="charge_total_dis" class="form-control" disabled />
+              </td>
               <td> {{ Form::button('<i class="fa fa-plus"></i>', array('class'=>'btn btn-success btn-sm', 'type'=>'submit' )) }} </td>
               {!! Form::close() !!}
             </tr>
@@ -134,9 +149,8 @@
   </div>
 </div>
 
-
 <!-- Payments -->
-<?php /*
+
 <div class="row">
   <div class="col-md-12">
     <div class="panel panel-warning">
@@ -147,25 +161,52 @@
         <table class="table table-striped">
           <thead>
             <tr>
-              <th> Date </th>
-              <th> Procedure Code </th>
-              <th> Procedure Description </th>
-              <th> Provider </th>
-              <th> Unit </th>
-              <th> Cost / Unit </th>
-              <th> Total Amount </th>
+              <th style='width: 10%'> Date </th>
+              <th style='width: 10%'> Pay/Adj Code </th>
+              <th style='width: 20%'> Payment Description </th>
+              <th style='width: 15%'> Who Paid </th>
+              <th style='width: 10%'> Provider </th>
+              <th style='width: 10%'> Total </th>
+              <th style='width: 10%'> Check # </th>
+              <th style='width: 10%'> Unapplied </th>
+              <th style='width: 5%'> </th>
             </tr>
           </thead>
           <tbody>
-            @foreach($patient->charges as $charge)
+            <tr>
+              {!! Form::open(array('route' => 'patients.addPayment')) !!}
+              {{ Form::hidden('patient_id', $patient->id) }}
+              <td> {{ Form::date('date_from', \Carbon\Carbon::now(), array('class'=>'form-control')) }} </td>
+              <td>
+                <input type="hidden" class="form-control" name="payment_code" id="payment_procedure_code_hid" />
+                <input type="text" class="form-control" disabled id="payment_procedure_code_dis" />
+              </td>
+              <td> <select class="form-control" name="payment_description" id="payment_procedure_description">
+                <option disabled selected value> -- Select Payment Type --</option>
+                @foreach($payments as $payment)
+                  <option data-amount="{{$payment->amount}}" value="{{$payment->code}}">{{$payment->description}}</option>
+                @endforeach
+                </select>
+              </td>
+              <td> {{ Form::select('who_paid', array('G' => 'Patient', '1' => 'Insurance 1', '2' => 'Insurance 2', '3' => 'Insurance 3'), null, array('class'=>'form-control')) }} </td>
+              <td> {{ Form::select('attending_provider', array('JEG' => 'Dr. Grace', 'CH'=>'C. Hounsell'), null, array('class'=>'form-control')) }} </td>
+              <td> {{ Form::text('total', null, array('class'=>'form-control')) }} </td>
+              <td> </td>
+              <td> {{ '' /*Form::text('check', null, array('class'=>'form-control')) */}} </td>
+              <td> {{ Form::button('<i class="fa fa-plus"></i>', array('class'=>'btn btn-success btn-sm', 'type'=>'submit' )) }} </td>
+              {!! Form::close() !!}
+            </tr>
+            @foreach($patient->payments as $payment)
               <tr>
-                <td> {{ date('d/m/Y' ,strtotime($charge->date_from)) }} </td>
-                <td> {{ $charge->procedure_code }} </td>
-                <td> {{ $charge->procedure_description }} </td>
-                <td> {{ $charge->provider }} </td>
-                <td> {{ $charge->unit }} </td>
-                <td> {{ $charge->amount }} </td>
-                <td> {{ $charge->total }} </td>
+                <td> {{ date('d/m/Y' ,strtotime($payment->date_from)) }} </td>
+                <td> {{ $payment->procedure_code }} </td>
+                <td> {{ $payment->procedure_description }} </td>
+                <td> {{ $payment->who_paid }} </td>
+                <td> {{ $payment->provider }} </td>
+                <td> {{ $payment->total }} </td>
+                <td> {{ $payment->deposit_id }} </td>
+                <td> {{ $payment->unapplied_amount }} </td>
+                <td> </td>
               </tr>
             @endforeach
           </tbody>
@@ -174,5 +215,35 @@
     </div>
   </div>
 </div>
-*/ ?>
+
+@endsection
+
+@section('scripts')
+<script type="text/javascript">
+  $('#charge_procedure_description').change(function() {
+    $('#charge_procedure_code_hid').attr('value', $('#charge_procedure_description').val());
+    $('#charge_procedure_code_dis').attr('value', $('#charge_procedure_description').val());
+    $('#charge_amount').attr('value', $(this).find(':selected').attr('data-amount'));
+
+    $('#charge_total_hid').attr('value', $('#charge_units').val() * $('#charge_amount').val() );
+    $('#charge_total_dis').attr('value', $('#charge_units').val() * $('#charge_amount').val() );
+  });
+
+  $('#charge_units').change(function() {
+    $('#charge_total_hid').attr('value', $('#charge_units').val() * $('#charge_amount').val() );
+    $('#charge_total_dis').attr('value', $('#charge_units').val() * $('#charge_amount').val() );
+  });
+
+  $('#charge_amount').change(function() {
+    $('#charge_total_hid').attr('value', $('#charge_units').val() * $('#charge_amount').val() );
+    $('#charge_total_dis').attr('value', $('#charge_units').val() * $('#charge_amount').val() );
+  });
+
+  $('#payment_procedure_description').change(function() {
+    $('#payment_procedure_code_hid').attr('value', $('#payment_procedure_description').val());
+    $('#payment_procedure_code_dis').attr('value', $('#payment_procedure_description').val());
+
+  });
+
+</script>
 @endsection

@@ -10,10 +10,10 @@ return [
     | This value determines the "environment" your application is currently
     | running in. This may determine how you prefer to configure various
     | services your application utilizes. Set this in your ".env" file.
-    |
+    | 'env' => env('APP_ENV', 'production'),
     */
 
-    'env' => env('APP_ENV', 'production'),
+    'env' => env('APP_ENV', 'dev'),
 
     /*
     |--------------------------------------------------------------------------
@@ -23,10 +23,10 @@ return [
     | When your application is in debug mode, detailed error messages with
     | stack traces will be shown on every error that occurs within your
     | application. If disabled, a simple generic error page is shown.
-    |
+    | 'debug' => env('APP_DEBUG', false),
     */
 
-    'debug' => env('APP_DEBUG', false),
+    'debug' => env('APP_DEBUG', true),
 
     /*
     |--------------------------------------------------------------------------
@@ -218,7 +218,7 @@ return [
         'Entrust'   => Zizaco\Entrust\EntrustFacade::class,
         /*
          * Add Form Builder: https://laravelcollective.com/docs/5.2/html
-         */ 
+         */
          'Form' => Collective\Html\FormFacade::class,
          'Html' => Collective\Html\HtmlFacade::class,
     ],

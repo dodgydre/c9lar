@@ -31,6 +31,7 @@ class CreateTransactionsTable extends Migration
             $table->decimal('i3_amount_paid', 5, 2)->default(0.00);
             $table->char('who_paid',1)->nullable();  // G/1/2/3
             $table->decimal('unapplied_amount', 5, 2)->default(0.00);
+            //$table->integer('deposit_id')->unsigned()->nullable();  // Do we need this now?
             $table->timestamps();
         });
     }

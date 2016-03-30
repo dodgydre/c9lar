@@ -57,7 +57,7 @@ class ProcedureController extends Controller
           'code' => 'required|max:8|unique:procedures,code',
           'type' => 'required|max:1',
           'description' => 'required|max:255',
-          'amount' => 'required|numeric'
+          'amount' => 'numeric'
         ));
 
         $procedure = new Procedure;

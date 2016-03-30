@@ -114,7 +114,9 @@ class PatientController extends Controller
     public function show($id)
     {
       $patient = Patient::find($id);
-      return view('patients.show')->withPatient($patient);
+      $procedures = Procedure::orderBy('code')->where('type', '=', 'A')->orWhere('type', '=', 'B')->get();
+      $payments = Procedure::orderBy('code')->where('type', '!=', 'A')->Where('type', '!=', 'B')->get();
+      return view('patients.show')->withPatient($patient)->withProcedures($procedures)->withPayments($payments);
     }
 
 
@@ -211,13 +213,12 @@ class PatientController extends Controller
     /**
      *  Add a new Charge to the Transactions table for a given patient
      *
-     * @param int $id (patient_id)
+     * @param
      * @return \Illuminate\Http\Response
      */
     public function addCharge(Request $request)
     {
       $this->validate($request, array(
-        /*'code' => 'required|max:8|unique:procedures,code',*/
         'date_from' => 'required',
         'units' => 'required|numeric',
         'amount' => 'required|numeric',
@@ -229,8 +230,9 @@ class PatientController extends Controller
 
       $patient = Patient::find($request->patient_id);
       $procedure = Procedure::where('code', '=', $request->procedure_code)->first();
-      $charge = new Transaction;
+      //dd($request->procedure_code);
 
+      $charge = new Transaction;
       $charge->patient_id = $request->patient_id;
       $charge->chart_number = $patient->chart_number;
       $charge->date_from = $request->date_from;
@@ -244,7 +246,74 @@ class PatientController extends Controller
       $charge->unapplied_amount = $request->total;
 
       $charge->save();
+
+      $patient->remaining_balance += $charge->total;
+      $patient->save();
+
       return redirect()->route('patients.show', [$patient->id]);
+    }
+
+    /**
+     *  Add a new Payment to the Transactions table for a given patient
+     *
+     * @param
+     * @return \Illuminate\Http\Response
+     */
+    public function addPayment(Request $request)
+    {
+      $this->validate($request, array(
+        'date_from' => 'required',
+        'total' => 'required|numeric',
+        'attending_provider' => 'required',
+        'payment_code'    => 'required|max:8',
+        'payment_description' => 'required',
+        'who_paid' => 'required'
+      ));
+
+      $patient = Patient::find($request->patient_id);
+      $procedure = Procedure::where('code', '=', $request->payment_code)->first();
+      //dd($request->procedure_code);
+      $payment = new Transaction;
+      $payment->patient_id = $request->patient_id;
+      $payment->chart_number = $patient->chart_number;
+      $payment->date_from = $request->date_from;
+      $payment->attending_provider = $request->attending_provider;
+      $payment->procedure_code = $request->payment_code;
+      $payment->procedure_description = $request->payment_description;
+      $payment->transaction_type = $procedure->type;
+      $payment->total = -($request->total);
+      $payment->unapplied_amount = -($request->total);
+
+      $payment->save();
+
+      $patient->remaining_balance -= $payment->total;
+      $patient->save();
+
+      return redirect()->route('patients.show', [$patient->id]);
+    }
+
+    /**
+    * We need some sort of Admin method to check the Remaining Balances of all patients
+    * In case things get out of whack.
+    * TODO: This should perhaps be moved to an AdminController.php file
+    *
+    **/
+    public function tidyUpPatientRemainingBalance() {
+      $patients = Patient::all();
+      foreach ($patients as $patient)
+      {
+        echo "Patient: " . $patient->chart_number . ' - ' . $patient->last_name . ', ' . $patient->first_name . '<br />';
+        $remaining = 0;
+        $transactions = $patient->transactions;
+        foreach ($transactions as $transaction)
+        {
+            echo $transaction->total . '<br />';
+            $remaining += $transaction->total;
+        }
+        echo $remaining . '<br /><br />';
+        $patient->remaining_balance = $remaining;
+        $patient->save();
+      }
     }
 
 }

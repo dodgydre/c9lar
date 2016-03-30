@@ -94,6 +94,15 @@ Route::group(['middleware' => 'web'], function () {
         'as' => 'patients.addCharge',
       'uses' => 'PatientController@addCharge'
     ]);
+    Route::post('/patients/addPayment', [
+        'as' => 'patients.addPayment',
+      'uses' => 'PatientController@addPayment'
+    ]);
+
+    Route::get('/admin/checkBalances', [
+      'as'   => 'admin.checkBalances',
+      'uses' => 'PatientController@tidyUpPatientRemainingBalance'
+    ]);
 
     Route::get('/home', 'HomeController@index');
 });
