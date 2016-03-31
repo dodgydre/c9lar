@@ -87,37 +87,5 @@ class EntrustSeeder extends Seeder
         $owner->attachPermissions(array($createPost, $editUser));
         // equivalent to $owner->perms()->sync(array($createPost->id, $editUser->id));
 
-        $patient = new Patient;
-        $patient->chart_number = 'GEOAN000';
-        $patient->first_name = 'Andreas';
-        $patient->last_name = 'Georghiou';
-        $patient->save();
-
-        $patient1 = new Patient;
-        $patient1->chart_number = 'GRAJA000';
-        $patient1->first_name = 'Janice';
-        $patient1->last_name = 'Grace';
-        $patient1->save();
-
-        $procedure1 = new Procedure;
-        $procedure1->code = 'CA';
-        $procedure1->type = 'A';
-        $procedure1->description = 'Chiropractic Adjustment';
-        $procedure1->amount = 45;
-        $procedure1->save();
-
-        $procedure2 = new Procedure;
-        $procedure2->code = 'RMT45';
-        $procedure2->type = 'A';
-        $procedure2->description = '45 Minute Massage';
-        $procedure2->amount = 90;
-        $procedure2->save();
-
-        $insurer1 = new Insurer;
-        $insurer1->code = 'BLU001';
-        $insurer1->name = 'Blue Cross Medavie';
-        $insurer1->save();
-
-
     }
 }
