@@ -31,6 +31,19 @@ class Patient extends Model
         return $this->hasMany('App\Transaction')->where('transactions.total', '<', '0')->orderBy('transactions.date_from', 'desc')->orderBy('transactions.updated_at', 'desc');
     }
 
+    // hasOne from Insurers based on code
+    public function insurance1()
+    {
+        return $this->hasOne('App\Insurer', 'code', 'insurer1');
+    }
+    public function insurance2()
+    {
+        return $this->hasOne('App\Insurer', 'code', 'insurer2');
+    }
+    public function insurance3()
+    {
+        return $this->hasOne('App\Insurer', 'code', 'insurer3');
+    }
     // Created By:
     /*public function createdBy() {
         return $this->belongsTo('App\User', 'created_by');

@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 
 use App\Http\Requests;
 use App\Insurer;
+use Session;
 
 class InsurerController extends Controller
 {

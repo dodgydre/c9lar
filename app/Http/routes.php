@@ -90,6 +90,7 @@ Route::group(['middleware' => 'web'], function () {
        return 'end';
     });
 
+    // Add Charge and Payment to patient.  patient_id is in the $request variable
     Route::post('/patients/addCharge', [
         'as' => 'patients.addCharge',
       'uses' => 'PatientController@addCharge'
@@ -99,10 +100,18 @@ Route::group(['middleware' => 'web'], function () {
       'uses' => 'PatientController@addPayment'
     ]);
 
+    // Apply a payment to {patient} by {payor}
+    Route::get('/patients/{id}/apply/{transaction}/from/{payor}', [
+        'as' => 'patients.applyPayment',
+      'uses' => 'PatientController@applyPayment'
+    ]);
+
+
     Route::get('/admin/checkBalances', [
       'as'   => 'admin.checkBalances',
       'uses' => 'PatientController@tidyUpPatientRemainingBalance'
     ]);
+
 
     Route::get('/home', 'HomeController@index');
 });

@@ -116,6 +116,7 @@ class PatientController extends Controller
       $patient = Patient::find($id);
       $procedures = Procedure::orderBy('code')->where('type', '=', 'A')->orWhere('type', '=', 'B')->get();
       $payments = Procedure::orderBy('code')->where('type', '!=', 'A')->Where('type', '!=', 'B')->get();
+
       return view('patients.show')->withPatient($patient)->withProcedures($procedures)->withPayments($payments);
     }
 
@@ -123,7 +124,10 @@ class PatientController extends Controller
     public function showChartNum($chart_number)
     {
       $patient = Patient::where('chart_number', '=', $chart_number)->first();
-      return view('patients.show')->withPatient($patient);
+      $procedures = Procedure::orderBy('code')->where('type', '=', 'A')->orWhere('type', '=', 'B')->get();
+      $payments = Procedure::orderBy('code')->where('type', '!=', 'A')->Where('type', '!=', 'B')->get();
+
+      return view('patients.show')->withPatient($patient)->withProcedures($procedures)->withPayments($payments);
     }
 
     /**
@@ -284,13 +288,41 @@ class PatientController extends Controller
       $payment->total = -($request->total);
       $payment->unapplied_amount = -($request->total);
 
-      $payment->save();
 
-      $patient->remaining_balance -= $payment->total;
+      $patient->remaining_balance += $payment->total;
+      $patient->last_pmt = $payment->total;
+      $patient->date_of_last_pmt = $request->date_from;
+
+      $payment->save();
       $patient->save();
 
       return redirect()->route('patients.show', [$patient->id]);
     }
+
+    /**
+     * Apply Payment
+     * /patients/{id}/apply/{transaction}/from/{payor}
+     * @params
+     *      id => patient_id
+     *      transaction => transaction_id
+     *      payor => who_paid
+     */
+     public function applyPayment($id, $transaction_id, $payor) {
+       $patient = Patient::find($id);
+       $thisTransaction = Transaction::find($transaction_id);
+       // TODO: What to do if $payor is not G, 1, 2, 3?  What to do if 1,2 or 3 is empty?
+       if ($payor == 'G') $who_paid = $patient->last_name . ', ' . $patient->first_name . ' - Guarantor';
+       elseif ($payor == 1) $who_paid = $patient->insurance1->name . ' - Primary';
+       elseif ($payor == 2) $who_paid = $patient->insurance2->name . ' - Secondary';
+       elseif ($payor == 3) $who_paid = $patient->insurance3->name . ' - Third';
+       return view('patients.apply')
+                ->withPatient($patient)
+                ->with('thisTransaction', $thisTransaction)
+                ->with('who_paid', $who_paid)
+                ->with('payor', $payor);
+     }
+
+
 
     /**
     * We need some sort of Admin method to check the Remaining Balances of all patients

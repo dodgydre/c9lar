@@ -84,6 +84,7 @@
 </div> <!-- close .row -->
 
 <!-- Charges -->
+<!-- TODO: Colors: No Payment (warning), Partially Paid (info), Overpaid (danger), Paid (white) -->
 <div class="row">
   <div class="col-md-12">
     <div class="panel panel-info">
@@ -131,7 +132,7 @@
               {!! Form::close() !!}
             </tr>
             @foreach($patient->charges as $charge)
-              <tr>
+              <tr class="{{ $charge->paidClass() }}">
                 <td> {{ date('d/m/Y' ,strtotime($charge->date_from)) }} </td>
                 <td> {{ $charge->procedure_code }} </td>
                 <td> {{ $charge->procedure_description }} </td>
@@ -150,7 +151,7 @@
 </div>
 
 <!-- Payments -->
-
+<!-- TODO: Color Coding - Not Applied (warning), Partially Applied (info), Over-Applied (danger), Fully Applied (white) -->
 <div class="row">
   <div class="col-md-12">
     <div class="panel panel-warning">
@@ -197,7 +198,7 @@
               {!! Form::close() !!}
             </tr>
             @foreach($patient->payments as $payment)
-              <tr>
+              <tr class="{{ $payment->appliedClass() }}">
                 <td> {{ date('d/m/Y' ,strtotime($payment->date_from)) }} </td>
                 <td> {{ $payment->procedure_code }} </td>
                 <td> {{ $payment->procedure_description }} </td>
@@ -206,7 +207,11 @@
                 <td> {{ $payment->total }} </td>
                 <td> {{ $payment->deposit_id }} </td>
                 <td> {{ $payment->unapplied_amount }} </td>
-                <td> </td>
+                <td>
+                  @if($payment->unapplied_amount != 0)
+                    <button class="btn btn-primary btn-sm">Apply</button>
+                  @endif
+                </td>
               </tr>
             @endforeach
           </tbody>
