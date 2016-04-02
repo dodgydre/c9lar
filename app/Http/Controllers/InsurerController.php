@@ -41,7 +41,7 @@ class InsurerController extends Controller
     {
         //TODO: validation for phone numbers?
         $this->validate($request, array(
-          'code'=>'required|max:5|unique:insurers,code',
+          'code'=>'required|max:15|unique:insurers,code',
           'name'=>'required',
           'street1' => 'max:150',
           'street2' => 'max:150',

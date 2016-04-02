@@ -14,7 +14,7 @@ class CreateProceduresTable extends Migration
     {
         Schema::create('procedures', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('code', 8)->unique();
+            $table->string('code', 15)->unique();
             $table->string('type', 1);  // should be just one character long
             $table->string('description', 255);
             $table->decimal('amount', 5, 2)->default(0.00);

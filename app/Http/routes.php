@@ -1,6 +1,7 @@
 <?php
 use App\User;
 use App\Patient;
+use App\Procedure;
 
 /*
 |--------------------------------------------------------------------------
@@ -33,7 +34,7 @@ Route::group(['middleware' => 'web'], function () {
         return view('welcome');
     });
 
-    Route::get('/accessTest', 'PageController@getAccessTest');
+    //Route::get('/accessTest', 'PageController@getAccessTest');
 
     Route::get('/tester', function() {
        return view('tester');
@@ -102,15 +103,62 @@ Route::group(['middleware' => 'web'], function () {
 
     // Apply a payment to {patient} by {payor}
     Route::get('/patients/{id}/apply/{transaction}/from/{payor}', [
+        'as' => 'patients.applyPaymentForm',
+      'uses' => 'PatientController@applyPaymentForm'
+    ]);
+    Route::post('/patients/applyPayment', [
         'as' => 'patients.applyPayment',
       'uses' => 'PatientController@applyPayment'
+    ]);
+
+    Route::post('/patients/assignInsurer', [
+        'as' => 'patients.assignInsurer',
+      'uses' => 'PatientController@assignInsurer'
     ]);
 
 
     Route::get('/admin/checkBalances', [
       'as'   => 'admin.checkBalances',
-      'uses' => 'PatientController@tidyUpPatientRemainingBalance'
+      'uses' => 'AdminController@tidyUpPatientRemainingBalance'
     ]);
+
+
+    Route::get('/testForm', function() {
+      return view('patients.test');
+    });
+
+    Route::post('/testForm', [
+      'as' => 'testForm',
+      'uses' => 'PatientController@testForm'
+    ]);
+
+    Route::get('/test', function() {
+      $x = array();
+      $y = array();
+      $counter = 1;
+      $years = array(2010, 2011, 2012, 2013, 2014, 2015, 2016);
+      foreach($years as $year) {
+        for($month = 1; $month <= 12; $month++) {
+          if ($month < 10) {
+              $month = '0' . $month;
+          }
+
+          $search = $year . '-' . $month;
+
+          $revenues = App\Transaction::where('date_from', 'like', $search .'%')->get();
+
+          $sum = 0;
+          foreach ($revenues as $revenue) {
+              $sum += $revenue->amount;
+          }
+
+          array_push($x, (string)$year . "-" . (string)$month);
+          array_push($y, $sum);
+          $counter ++;
+        }
+      }
+      return view('patients.test')->with('x', $x)->with('y', $y);
+    });
 
 
     Route::get('/home', 'HomeController@index');

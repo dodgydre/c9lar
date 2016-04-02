@@ -13,14 +13,7 @@ class ProcedureController extends Controller
     // Change these so that delete only works for admin?
     public function __construct()
     {
-      $this->middleware('auth', ['only'=>[
-        'create',
-        'delete',
-        'store',
-        'edit',
-        'update',
-        ]]);
-        // also 'except' for views that don't go through the middleware.
+      $this->middleware('auth');
     }
 
 
@@ -54,7 +47,7 @@ class ProcedureController extends Controller
     public function store(Request $request)
     {
         $this->validate($request, array(
-          'code' => 'required|max:8|unique:procedures,code',
+          'code' => 'required|max:15|unique:procedures,code',
           'type' => 'required|max:1',
           'description' => 'required|max:255',
           'amount' => 'numeric'

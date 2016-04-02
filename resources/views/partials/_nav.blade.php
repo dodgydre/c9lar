@@ -11,8 +11,8 @@
                 </button>
 
                 <!-- Branding Image -->
-                <a class="navbar-brand" href="{{ url('/') }}">
-                    Laravel
+                <a class="navbar-brand" href="{{ url('/') }}" style="padding-top: 0px; padding-left: -50px;">
+                    <img src="{{URL::asset('images/logo.png')}}" height="50px" />
                 </a>
             </div>
 

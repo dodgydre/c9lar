@@ -4,10 +4,13 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 
+use DB;
 use App\Http\Requests;
 use App\Patient;
 use App\Transaction;
+use App\Insurer;
 use App\Procedure;
+use App\Payment;
 use Session;
 
 class PatientController extends Controller
@@ -32,7 +35,7 @@ class PatientController extends Controller
      */
     public function index()
     {
-        $patients = Patient::orderBy('id', 'asc')->get();
+        $patients = Patient::orderBy('last_name', 'asc')->get();
         return view('patients.index')->withPatients($patients);
     }
 
@@ -116,8 +119,9 @@ class PatientController extends Controller
       $patient = Patient::find($id);
       $procedures = Procedure::orderBy('code')->where('type', '=', 'A')->orWhere('type', '=', 'B')->get();
       $payments = Procedure::orderBy('code')->where('type', '!=', 'A')->Where('type', '!=', 'B')->get();
+      $insurers = Insurer::orderBy('code')->get();
 
-      return view('patients.show')->withPatient($patient)->withProcedures($procedures)->withPayments($payments);
+      return view('patients.show')->withPatient($patient)->withProcedures($procedures)->withPayments($payments)->withInsurers($insurers);
     }
 
 
@@ -126,8 +130,9 @@ class PatientController extends Controller
       $patient = Patient::where('chart_number', '=', $chart_number)->first();
       $procedures = Procedure::orderBy('code')->where('type', '=', 'A')->orWhere('type', '=', 'B')->get();
       $payments = Procedure::orderBy('code')->where('type', '!=', 'A')->Where('type', '!=', 'B')->get();
+      $insurers = Insurer::orderBy('code')->get();
 
-      return view('patients.show')->withPatient($patient)->withProcedures($procedures)->withPayments($payments);
+      return view('patients.show')->withPatient($patient)->withProcedures($procedures)->withPayments($payments)->withInsurers($insurers);
     }
 
     /**
@@ -269,7 +274,7 @@ class PatientController extends Controller
         'date_from' => 'required',
         'total' => 'required|numeric',
         'attending_provider' => 'required',
-        'payment_code'    => 'required|max:8',
+        'payment_code'    => 'required|max:15',
         'payment_description' => 'required',
         'who_paid' => 'required'
       ));
@@ -284,10 +289,10 @@ class PatientController extends Controller
       $payment->attending_provider = $request->attending_provider;
       $payment->procedure_code = $request->payment_code;
       $payment->procedure_description = $request->payment_description;
+      $payment->who_paid = $request->who_paid;
       $payment->transaction_type = $procedure->type;
       $payment->total = -($request->total);
       $payment->unapplied_amount = -($request->total);
-
 
       $patient->remaining_balance += $payment->total;
       $patient->last_pmt = $payment->total;
@@ -307,14 +312,19 @@ class PatientController extends Controller
      *      transaction => transaction_id
      *      payor => who_paid
      */
-     public function applyPayment($id, $transaction_id, $payor) {
+     public function applyPaymentForm($id, $transaction_id, $payor)
+     {
        $patient = Patient::find($id);
        $thisTransaction = Transaction::find($transaction_id);
+
+       //$appliedTo = $thisTransaction->payments();
+       //echo $appliedTo;
        // TODO: What to do if $payor is not G, 1, 2, 3?  What to do if 1,2 or 3 is empty?
        if ($payor == 'G') $who_paid = $patient->last_name . ', ' . $patient->first_name . ' - Guarantor';
        elseif ($payor == 1) $who_paid = $patient->insurance1->name . ' - Primary';
        elseif ($payor == 2) $who_paid = $patient->insurance2->name . ' - Secondary';
        elseif ($payor == 3) $who_paid = $patient->insurance3->name . ' - Third';
+
        return view('patients.apply')
                 ->withPatient($patient)
                 ->with('thisTransaction', $thisTransaction)
@@ -322,30 +332,148 @@ class PatientController extends Controller
                 ->with('payor', $payor);
      }
 
+     public function applyPayment(Request $request)
+     {
+       echo "Starting <br />";
+       $affectedTransactions = array();
+       //$patient = Patient::find($request->id);
+       switch ($request->payor) {
+        case 'G':
+          $payor_col = 'g_amount_paid';
+          break;
+        case '1':
+          $payor_col = 'i1_amount_paid';
+          break;
+        case '2':
+          $payor_col = 'i2_amount_paid';
+          break;
+        case '3':
+          $payor_col = 'i3_amount_paid';
+          break;
+       }
+       echo $payor_col . "<br />";
+       $payTransaction = Transaction::find($request->transaction_id);
+       array_push($affectedTransactions, (int)$request->transaction_id);
 
+       echo 'Pay Reference: ' . $payTransaction->id . '<br />';
+       foreach($request->toapply as $charge_id => $amount)
+       {
+         echo 'Charge Reference: ' . $charge_id . " - Amount: " . $amount . "<br />";
+
+         $exists = DB::table('payments')->where('charge_ref', '=', $charge_id)->where('payment_ref', $payTransaction->id)->get();
+         print_r($exists);
+
+         if($amount != 0)
+         {
+           array_push($affectedTransactions, $charge_id);
+           if(isset($exists)){
+             $payTransaction->charges()->detach($charge_id);
+           }
+           $amount = - abs($amount);
+           $payTransaction->charges()->attach($charge_id, ['amount' => $amount, 'who_paid' => $request->payor]);
+
+         }
+      }
+      $this->doApplyPayments($affectedTransactions);
+
+      return redirect()->route('patients.show', [$request->patient_id]);
+    }
+
+    public function doApplyPayments($affectedTransactions) {
+      foreach($affectedTransactions as $affectedTransaction) {
+        $transaction = Transaction::find($affectedTransaction);
+        echo "Transaction " . $transaction->id . " <br />";
+        if($transaction->total > 0) {
+          echo "Charge<br />";
+          $unapplied = $transaction->total;
+          $transaction->g_amount_paid = 0;
+          $transaction->i1_amount_paid = 0;
+          $transaction->i2_amount_paid = 0;
+          $transaction->i3_amount_paid = 0;
+
+          $payments = DB::table('payments')->where('charge_ref', '=', $transaction->id)->get();
+          foreach($payments as $payment) {
+            echo "Payment Ref: " . $payment->payment_ref . " - Amount $" . $payment->amount . " - paid by: " . $payment->who_paid . "<br />";
+            if($payment->who_paid == 'G') {
+              $transaction->g_amount_paid -= abs($payment->amount);
+              echo "Transaction g_amount_paid = " . $transaction->g_amount_paid . "<br />";
+            }
+            elseif($payment->who_paid == 1) {
+              $transaction->i1_amount_paid -= abs($payment->amount);
+              echo "Transaction i1_amount_paid = " . $transaction->i1_amount_paid . "<br />";
+
+            }
+            elseif($payment->who_paid == 2) {
+              $transaction->i2_amount_paid -= abs($payment->amount);
+              echo "Transaction i2_amount_paid = " . $transaction->i2_amount_paid . "<br />";
+            }
+            elseif($payment->who_paid == 3) {
+              $transaction->i3_amount_paid-= abs($payment->amount);
+              echo "Transaction i3_amount_paid = " . $transaction->i3_amount_paid . "<br />";
+            }
+            $unapplied -= abs($payment->amount);
+          }
+          $transaction->unapplied_amount = $unapplied;
+        }
+
+        else {
+          echo "Payment<br />";
+          $unapplied = $transaction->total;
+
+          $charges = DB::table('payments')->where('payment_ref', '=', $transaction->id)->get();
+          foreach($charges as $charge) {
+            echo "Charge Ref: " . $charge->payment_ref . " - Amount: $" . $charge->amount . " - paid by: " . $charge->who_paid . "<br />";
+            $amount = abs($charge->amount);
+            $unapplied += $amount;
+          }
+          $transaction->unapplied_amount = $unapplied;
+        }
+        $transaction->save();
+
+      }
+
+    }
 
     /**
-    * We need some sort of Admin method to check the Remaining Balances of all patients
-    * In case things get out of whack.
-    * TODO: This should perhaps be moved to an AdminController.php file
-    *
-    **/
-    public function tidyUpPatientRemainingBalance() {
-      $patients = Patient::all();
-      foreach ($patients as $patient)
-      {
-        echo "Patient: " . $patient->chart_number . ' - ' . $patient->last_name . ', ' . $patient->first_name . '<br />';
-        $remaining = 0;
-        $transactions = $patient->transactions;
-        foreach ($transactions as $transaction)
-        {
-            echo $transaction->total . '<br />';
-            $remaining += $transaction->total;
-        }
-        echo $remaining . '<br /><br />';
-        $patient->remaining_balance = $remaining;
-        $patient->save();
+     * Assign an insurer to a patient
+     * /patients/assignInsurer
+     **/
+     public function assignInsurer(Request $request)
+     {
+       $this->validate($request, array(
+         'patient_id' => 'required',
+         'insurer_num' => 'required',
+         'insurer' => 'required'
+       ));
+
+       $patient = Patient::find($request->patient_id);
+       switch($request->insurer_num) {
+        case 1:
+          $patient->insurer1 = $request->insurer;
+          $patient->save();
+          Session::flash('success', 'The insurer was added');
+          return redirect()->route('patients.show', $patient->id);
+          break;
+        case 2:
+          $patient->insurer2 = $request->insurer;
+          $patient->save();
+          Session::flash('success', 'The insurer was added');
+          return redirect()->route('patients.show', $patient->id);
+          break;
+        case 3:
+          $patient->insurer3 = $request->insurer;
+          $patient->save();
+          Session::flash('success', 'The insurer was added');
+          return redirect()->route('patients.show', $patient->id);
+       }
+     }
+
+    public function testForm(Request $request) {
+      foreach($request->Items as $key => $item) {
+        echo 'Key: ' . $key . ' - Value: ' . $item . '<br />';
       }
+
+      dd($request);
     }
 
 }

@@ -44,6 +44,7 @@ class Patient extends Model
     {
         return $this->hasOne('App\Insurer', 'code', 'insurer3');
     }
+    
     // Created By:
     /*public function createdBy() {
         return $this->belongsTo('App\User', 'created_by');

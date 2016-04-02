@@ -165,7 +165,10 @@ return [
          * Add Form Builder: https://laravelcollective.com/docs/5.2/html
          */
         Collective\Html\HtmlServiceProvider::class,
-
+        /*
+         * Debug Bar: https://github.com/barryvdh/laravel-debugbar
+         */
+        Barryvdh\Debugbar\ServiceProvider::class,
     ],
 
     /*

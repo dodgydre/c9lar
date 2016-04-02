@@ -14,7 +14,7 @@ class CreateInsurersTable extends Migration
     {
         Schema::create('insurers', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('code', 5)->unique();
+            $table->string('code', 15)->unique();
             $table->string('name');
             $table->string('street1')->nullable();
             $table->string('street2')->nullable();

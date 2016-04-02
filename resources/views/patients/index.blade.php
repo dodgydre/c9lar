@@ -12,6 +12,17 @@
 
           <a href="{{ route('patients.create') }}" class="btn btn-primary pull-right"><i class="fa fa-plus"></i> &nbsp;New Patient</a>
           <div class="clearfix"> </div>
+          <div class="row text-center">
+            <nav>
+              <ul class="pagination">
+                @for ($letter = 65; $letter < (65+26); $letter++)
+                  <li>
+                    <a href="#{{chr($letter)}}">{{chr($letter)}}</a>
+                  </li>
+                @endfor
+              </ul>
+            </nav>
+          </div>
         </div> <!-- end .panel-heading -->
 
         <div class="panel-body">
@@ -19,7 +30,6 @@
               <table class="table table-striped">
                 <thead>
                   <tr>
-                    <th> # </th>
                     <th> Chart Number </th>
                     <th> First Name </th>
                     <th> Last Name </th>
@@ -30,9 +40,17 @@
                   </tr>
                 </thead>
                 <tbody>
+                  <?php $lastChar = ''; ?>
                   @foreach($patients as $patient)
+                    <?php
+                      $char = $patient->last_name[0];
+                      if($char !== $lastChar) { ?>
+                        <tr class="warning text-center" id="{{$char}}"> <td colspan = "7"> {{ strtoupper($char) }} </td> </tr>
+                        <?php
+                        $lastChar = $char;
+                      }
+                      ?>
                     <tr>
-                      <td> {{ $patient->id }}</td>
                       <td> {{ $patient->chart_number }}</td>
                       <td> {{ $patient->first_name }}</td>
                       <td> {{ $patient->last_name }}</td>

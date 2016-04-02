@@ -13,7 +13,7 @@ class CreatePaymentsTable extends Migration
     public function up()
     {
         Schema::create('payments', function (Blueprint $table) {
-            $table->increments('id');
+            //$table->increments('id');
             $table->integer('payment_ref')->unsigned();  // fk from Transactions id
             $table->integer('charge_ref')->unsigned();   // fk from Transactions id
             $table->decimal('amount',5,2);   // -ve for payments
