@@ -2,6 +2,12 @@
 
 @section('title', '| Patients')
 
+@section('styles')
+
+  <link rel="stylesheet" href="{{ URL::asset('css/datatables.min.css') }}">
+
+@endsection
+
 @section('content')
 
   <div class="row">
@@ -12,22 +18,12 @@
 
           <a href="{{ route('patients.create') }}" class="btn btn-primary pull-right"><i class="fa fa-plus"></i> &nbsp;New Patient</a>
           <div class="clearfix"> </div>
-          <div class="row text-center">
-            <nav>
-              <ul class="pagination">
-                @for ($letter = 65; $letter < (65+26); $letter++)
-                  <li>
-                    <a href="#{{chr($letter)}}">{{chr($letter)}}</a>
-                  </li>
-                @endfor
-              </ul>
-            </nav>
-          </div>
+
         </div> <!-- end .panel-heading -->
 
         <div class="panel-body">
 
-              <table class="table table-striped">
+              <table class="table table-striped" id="patients_table">
                 <thead>
                   <tr>
                     <th> Chart Number </th>
@@ -40,16 +36,7 @@
                   </tr>
                 </thead>
                 <tbody>
-                  <?php $lastChar = ''; ?>
                   @foreach($patients as $patient)
-                    <?php
-                      $char = $patient->last_name[0];
-                      if($char !== $lastChar) { ?>
-                        <tr class="warning text-center" id="{{$char}}"> <td colspan = "7"> {{ strtoupper($char) }} </td> </tr>
-                        <?php
-                        $lastChar = $char;
-                      }
-                      ?>
                     <tr>
                       <td> {{ $patient->chart_number }}</td>
                       <td> {{ $patient->first_name }}</td>
@@ -83,7 +70,31 @@
     </div>
   </div> <!-- end of .row -->
 
+@endsection
 
+@section('scripts')
 
+<script type="text/javascript" src="{{ URL::asset('js/datatables.min.js') }}"></script>
+
+<script type="text/javascript">
+
+$(document).ready(function() {
+
+  $('#patients_table').DataTable({
+      "paging": false,
+      "columns": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        { "orderable": false }
+      ]
+  });
+  $('#patients_table_filter').addClass('pull-right');
+  $("<span class='glyphicon glyphicon-search' style='padding-left: 1em;'></span>").insertBefore($('#patients_table_filter').find('input'));
+});
+</script>
 
 @endsection

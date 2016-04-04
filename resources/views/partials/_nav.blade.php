@@ -1,5 +1,5 @@
 <nav class="navbar navbar-default navbar-static-top">
-        <div class="container">
+        <div class="container-fluid">
             <div class="navbar-header">
 
                 <!-- Collapsed Hamburger -->
@@ -24,6 +24,7 @@
                         <li class="{{ set_active(['/procedures/*']) }}"><a href="{{ url('/procedures') }}">Procedures</a></li>
                         <li class="{{ set_active(['/insurers/*']) }}"><a href="{{ url('/insurers') }}">Insurers</a></li>
                         <li class="{{ set_active(['/patients/*']) }}"><a href="{{ url('/patients') }}">Patients</a></li>
+                        <li class="{{ set_active(['/todo/*']) }}"><a href="{{ url('/tasks') }}">Todo</a></li>
                     @endif
                 </ul>
 

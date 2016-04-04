@@ -23,14 +23,14 @@ class CreateTransactionsTable extends Migration
             $table->string('procedure_description'); // from Procedure
             $table->string('transaction_type'); // from Procedure
             $table->integer('units')->unsigned();
-            $table->decimal('amount', 5, 2)->default(0.00);  // from Procedure  (+ve for charge, -ve for payment)
-            $table->decimal('total', 5, 2)->default(0.00);  // units * amount
-            $table->decimal('g_amount_paid', 5, 2)->default(0.00);
-            $table->decimal('i1_amount_paid', 5, 2)->default(0.00);
-            $table->decimal('i2_amount_paid', 5, 2)->default(0.00);
-            $table->decimal('i3_amount_paid', 5, 2)->default(0.00);
+            $table->decimal('amount', 7, 2)->default(0.00);  // from Procedure  (+ve for charge, -ve for payment)
+            $table->decimal('total', 7, 2)->default(0.00);  // units * amount
+            $table->decimal('g_amount_paid', 7, 2)->default(0.00);
+            $table->decimal('i1_amount_paid', 7, 2)->default(0.00);
+            $table->decimal('i2_amount_paid', 7, 2)->default(0.00);
+            $table->decimal('i3_amount_paid', 7, 2)->default(0.00);
             $table->char('who_paid',1)->nullable();  // G/1/2/3
-            $table->decimal('unapplied_amount', 5, 2)->default(0.00);
+            $table->decimal('unapplied_amount', 7, 2)->default(0.00);
             //$table->integer('deposit_id')->unsigned()->nullable();  // Do we need this now?
             $table->timestamps();
         });

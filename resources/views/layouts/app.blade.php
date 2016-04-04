@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     @include('partials._head')
+    @yield('styles')
 </head>
 <body id="app-layout">
 

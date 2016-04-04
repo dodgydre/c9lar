@@ -1,6 +1,8 @@
 <?php
 
 use Illuminate\Database\Seeder;
+use Carbon\Carbon;
+
 use App\Transaction;
 use App\Patient;
 use App\Procedure;
@@ -14,9 +16,10 @@ class TransactionSeeder extends Seeder
      */
     public function run()
     {
+      $this->command->info('Start TransactionSeeder');
 
-      $procedureCodes = Procedure::where('type','=','A')->orWhere('type','=','B')->pluck('code');
-      $procedures = Procedure::where('type','=','A')->orWhere('type','=','B')->get();
+      $procedureCodes = Procedure::where('type','=','A')->orWhere('type','=','B')->where('type', '!=', 'H')->pluck('code');
+      $procedures = Procedure::where('type','=','A')->orWhere('type','=','B')->where('type', '!=', 'H')->get();
       $patients = Patient::get()->pluck('chart_number', 'id');
 
       $faker = Faker\Factory::create();
@@ -27,12 +30,13 @@ class TransactionSeeder extends Seeder
         $chart_number = $patients[$patient_id];
         $unit = rand(1,3);
         $randomProcedure = $procedures->random();
-        $this->command->info($randomProcedure);
         $amount = $randomProcedure->amount;
         $total = $unit * $amount;
 
+        $date = $faker->dateTimeBetween($startDate = 'now-5 years', $endDate = 'now');
+
         DB::table('transactions')->insert([
-          'date_from' => $faker->date($format = 'Y-m-d', $max = 'now'),
+          'date_from' => $date->format('Y-m-d'),
           'patient_id' => $patient_id,
           'chart_number' => $chart_number,
           'units' => $unit,
@@ -44,5 +48,8 @@ class TransactionSeeder extends Seeder
           'unapplied_amount' => $total
         ]);
       }
+
+      $this->command->info('End TransactionSeeder');
+
     }
 }

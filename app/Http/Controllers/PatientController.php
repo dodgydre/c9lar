@@ -5,26 +5,30 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 
 use DB;
+use Carbon\Carbon;
+use Session;
+
 use App\Http\Requests;
 use App\Patient;
 use App\Transaction;
 use App\Insurer;
 use App\Procedure;
 use App\Payment;
-use Session;
 
 class PatientController extends Controller
 {
     // Set Auth Middleware for All but Patient Index.  Add admin only to delete
     public function __construct()
     {
+      $this->middleware('auth');
+      /*
       $this->middleware('auth', ['only'=>[
         'create',
         'delete',
         'store',
         'edit',
         'update',
-        ]]);
+        ]]);*/
         // also 'except' for views that don't go through the middleware.
     }
 
@@ -117,8 +121,8 @@ class PatientController extends Controller
     public function show($id)
     {
       $patient = Patient::find($id);
-      $procedures = Procedure::orderBy('code')->where('type', '=', 'A')->orWhere('type', '=', 'B')->get();
-      $payments = Procedure::orderBy('code')->where('type', '!=', 'A')->Where('type', '!=', 'B')->get();
+      $procedures = Procedure::orderBy('code')->where('type', '=', 'A')->orWhere('type', '=', 'B')->orWhere('type', '=', 'H')->get();
+      $payments = Procedure::orderBy('code')->where('type', '!=', 'A')->where('type', '!=', 'B')->where('type', '!=', 'H')->get();
       $insurers = Insurer::orderBy('code')->get();
 
       return view('patients.show')->withPatient($patient)->withProcedures($procedures)->withPayments($payments)->withInsurers($insurers);
@@ -128,8 +132,8 @@ class PatientController extends Controller
     public function showChartNum($chart_number)
     {
       $patient = Patient::where('chart_number', '=', $chart_number)->first();
-      $procedures = Procedure::orderBy('code')->where('type', '=', 'A')->orWhere('type', '=', 'B')->get();
-      $payments = Procedure::orderBy('code')->where('type', '!=', 'A')->Where('type', '!=', 'B')->get();
+      $procedures = Procedure::orderBy('code')->where('type', '=', 'A')->orWhere('type', '=', 'B')->orWhere('type', '=', 'H')->get();
+      $payments = Procedure::orderBy('code')->where('type', '!=', 'A')->where('type', '!=', 'B')->where('type', '!=', 'H')->get();
       $insurers = Insurer::orderBy('code')->get();
 
       return view('patients.show')->withPatient($patient)->withProcedures($procedures)->withPayments($payments)->withInsurers($insurers);
@@ -237,14 +241,16 @@ class PatientController extends Controller
         'procedure_description' => 'required'
       ));
 
+      //dd(Carbon::createFromFormat('d/m/Y', $request->date_from)->toDateString());
+      //$date = Carbon::createFromFormat('d/m/Y', $request->date_from);
+
       $patient = Patient::find($request->patient_id);
       $procedure = Procedure::where('code', '=', $request->procedure_code)->first();
-      //dd($request->procedure_code);
 
       $charge = new Transaction;
       $charge->patient_id = $request->patient_id;
       $charge->chart_number = $patient->chart_number;
-      $charge->date_from = $request->date_from;
+      $charge->date_from = Carbon::createFromFormat('d/m/Y', $request->date_from);
       $charge->attending_provider = $request->attending_provider;
       $charge->procedure_code = $request->procedure_code;
       $charge->procedure_description = $procedure->description;
@@ -281,14 +287,14 @@ class PatientController extends Controller
 
       $patient = Patient::find($request->patient_id);
       $procedure = Procedure::where('code', '=', $request->payment_code)->first();
-      //dd($request->procedure_code);
+
       $payment = new Transaction;
       $payment->patient_id = $request->patient_id;
       $payment->chart_number = $patient->chart_number;
-      $payment->date_from = $request->date_from;
+      $payment->date_from =  Carbon::createFromFormat('d/m/Y', $request->date_from);
       $payment->attending_provider = $request->attending_provider;
       $payment->procedure_code = $request->payment_code;
-      $payment->procedure_description = $request->payment_description;
+      $payment->procedure_description = $procedure->description;
       $payment->who_paid = $request->who_paid;
       $payment->transaction_type = $procedure->type;
       $payment->total = -($request->total);
@@ -467,13 +473,4 @@ class PatientController extends Controller
           return redirect()->route('patients.show', $patient->id);
        }
      }
-
-    public function testForm(Request $request) {
-      foreach($request->Items as $key => $item) {
-        echo 'Key: ' . $key . ' - Value: ' . $item . '<br />';
-      }
-
-      dd($request);
-    }
-
 }

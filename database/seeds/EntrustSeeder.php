@@ -22,6 +22,7 @@ class EntrustSeeder extends Seeder
     {
 
         // Define some roles.
+        $this->command->info('Start EntrustSeeder');
 
         $user1 = new User();
         $user1->name         = 'andreas';
@@ -35,25 +36,31 @@ class EntrustSeeder extends Seeder
         $user2->password  = Hash::make('password');
         $user2->save();
 
-        // Define some roles.
+        $user3 = new User();
+        $user3->name = 'michelle';
+        $user3->email = 'michelle@ohgeorgie.com';
+        $user3->password = Hash::make('password');
+        $user3->save();
 
-        $owner = new Role();
-        $owner->name         = 'owner';
-        $owner->display_name = 'Project Owner'; // optional
-        $owner->description  = 'User is the owner of a given project'; // optional
-        $owner->save();
+        // Define some roles.
 
         $admin = new Role();
         $admin->name         = 'admin';
         $admin->display_name = 'User Administrator'; // optional
-        $admin->description  = 'User is allowed to manage and edit other users'; // optional
+        $admin->description  = 'User can do anything'; // optional
         $admin->save();
 
-        $subscriber = new Role();
-        $subscriber->name = 'subscriber';
-        $subscriber->display_name = 'Subscriber';
-        $subscriber->description = 'Subscriber is allowed to view but not edit';
-        $subscriber->save();
+        $owner = new Role();
+        $owner->name         = 'owner';
+        $owner->display_name = 'Clinic Owner'; // optional
+        $owner->description  = 'User is the owner of the clinic'; // optional
+        $owner->save();
+
+        $assistant = new Role();
+        $assistant->name = 'assistant';
+        $assistant->display_name = 'Assistant';
+        $assistant->description = 'Assistant can access patient transactions but not employee details or patient notes';
+        $assistant->save();
 
         // Assign an administrator role.
         $first_user = User::where('name', '=', 'andreas')->first();
@@ -63,29 +70,34 @@ class EntrustSeeder extends Seeder
         $first_user->roles()->attach($admin->id); // id only
 
         $second_user = User::where('name', '=', 'janice')->first();
-        $second_user->roles()->attach($subscriber->id);
+        $second_user->roles()->attach($owner->id);
+
+        $third_user = User::where('name', '=', 'michelle')->first();
+        $third_user->attachRole($assistant);
 
         // Attach some permissions
 
-        $createPost = new Permission();
-        $createPost->name         = 'create-post';
-        $createPost->display_name = 'Create Posts'; // optional
+        $createEmployee = new Permission();
+        $createEmployee->name         = 'create-employee';
+        $createEmployee->display_name = 'Create Employee'; // optional
         // Allow a user to...
-        $createPost->description  = 'create new blog posts'; // optional
-        $createPost->save();
+        $createEmployee->description  = 'create new employee'; // optional
+        $createEmployee->save();
 
-        $editUser = new Permission();
-        $editUser->name         = 'edit-user';
-        $editUser->display_name = 'Edit Users'; // optional
+        $editPatient = new Permission();
+        $editPatient->name         = 'edit-patient';
+        $editPatient->display_name = 'Edit Patient'; // optional
         // Allow a user to...
-        $editUser->description  = 'edit existing users'; // optional
-        $editUser->save();
+        $editPatient->description  = 'edit existing patient'; // optional
+        $editPatient->save();
 
-        $admin->attachPermission($createPost);
+        $admin->attachPermissions(array($createEmployee, $editPatient));
         // equivalent to $admin->perms()->sync(array($createPost->id));
 
-        $owner->attachPermissions(array($createPost, $editUser));
+        $owner->attachPermission($createEmployee);
         // equivalent to $owner->perms()->sync(array($createPost->id, $editUser->id));
+
+        $this->command->info('End EntrustSeeder');
 
     }
 }

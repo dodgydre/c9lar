@@ -12,10 +12,19 @@ class InsurerSeeder extends Seeder
      */
     public function run()
     {
-        $insurer1 = new Insurer;
-        $insurer1->code = 'BLU001';
-        $insurer1->name = 'Blue Cross Medavie';
-        $insurer1->save();
+      $this->command->info('Start InsurerSeeder');
+
+      $insurer1 = new Insurer;
+      $insurer1->code = 'BLU000';
+      $insurer1->name = 'Blue Cross Medavie';
+      $insurer1->save();
+
+      $insurer2 = new Insurer;
+      $insurer2->code = 'GRE000';
+      $insurer2->name = 'Green Shield';
+      $insurer2->save();
+
+      $this->command->info('End InsurerSeeder');
+
     }
 }
-  

@@ -2,6 +2,10 @@
 
 @section('title', '| Patient')
 
+@section('styles')
+<link rel="stylesheet" href="{{ URL::asset('css/bootstrap-datepicker.min.css') }}">
+@endsection
+
 @section('content')
 
   <div class="row">
@@ -175,7 +179,7 @@
         <table class="table table-striped">
           <thead>
             <tr>
-              <th style='width: 10%'> Date </th>
+              <th style='width: 20%'> Date </th>
               <th style='width: 10%'> Procedure Code </th>
               <th style='width: 20%'> Procedure Description </th>
               <th style='width: 15%'> Provider </th>
@@ -190,7 +194,13 @@
             <tr>
               {!! Form::open(array('route' => 'patients.addCharge')) !!}
               {{ Form::hidden('patient_id', $patient->id) }}
-              <td> {{ Form::date('date_from', \Carbon\Carbon::now(), array('class'=>'form-control')) }} </td>
+              <td>
+                <div class="input-group date" data-provide="datepicker">
+                  <input type="text" class="form-control" id="charge_date_from" name="date_from" value="{{ \Carbon\Carbon::now()->format('d/m/Y') }}"/>
+                  <div class="input-group-addon">
+                    <span class="glyphicon glyphicon-calendar"></span>
+                  </div>
+                </div>
               <td>
                 <input type="hidden" class="form-control" name="procedure_code" id="charge_procedure_code_hid" />
                 <input type="text" class="form-control" disabled id="charge_procedure_code_dis" />
@@ -245,7 +255,7 @@
         <table class="table table-striped">
           <thead>
             <tr>
-              <th style='width: 10%'> Date </th>
+              <th style='width: 20%'> Date </th>
               <th style='width: 10%'> Pay/Adj Code </th>
               <th style='width: 20%'> Payment Description </th>
               <th style='width: 15%'> Who Paid </th>
@@ -260,7 +270,13 @@
             <tr>
               {!! Form::open(array('route' => 'patients.addPayment')) !!}
               {{ Form::hidden('patient_id', $patient->id) }}
-              <td> {{ Form::date('date_from', \Carbon\Carbon::now(), array('class'=>'form-control')) }} </td>
+              <td>
+                <div class="input-group date" data-provide="datepicker">
+                  <input type="text" class="form-control" id="payment_date_from" name="date_from" value="{{ \Carbon\Carbon::now()->format('d/m/Y') }}"/>
+                  <div class="input-group-addon">
+                    <span class="glyphicon glyphicon-calendar"></span>
+                  </div>
+                </div>
               <td>
                 <input type="hidden" class="form-control" name="payment_code" id="payment_procedure_code_hid" />
                 <input type="text" class="form-control" disabled id="payment_procedure_code_dis" />
@@ -323,6 +339,9 @@
 @endsection
 
 @section('scripts')
+
+<script type="text/javascript" src="{{ URL::asset('js/bootstrap-datepicker.min.js') }}"></script>
+
 <script type="text/javascript">
   $('#charge_procedure_description').change(function() {
     $('#charge_procedure_code_hid').attr('value', $('#charge_procedure_description').val());
@@ -377,6 +396,16 @@
     $('#insurer3_info').addClass('hidden');
     $('#insurer3_form').removeClass('hidden');
   });
+
+  $('.date').datepicker({
+      format: 'dd/mm/yyyy',
+      todayHighlight: 'TRUE',
+      autoclose: true,
+      keyboardNavigation: true,
+  });
+  /*$('.datepicker').on("changeDate", function() {
+    $(this).val = $(this).datepicker('getFormattedDate');
+  });*/
 
 </script>
 @endsection

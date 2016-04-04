@@ -3446,7 +3446,8 @@ tbody.collapse.in {
   color: #555555;
   text-align: center;
   background-color: #eeeeee;
-  border: 1px solid #66afe9;
+  border: none;
+  border-bottom: 1px solid #66afe9;
   border-radius: 0px; }
   .input-group-addon.input-sm,
   .input-group-sm > .input-group-addon,

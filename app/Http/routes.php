@@ -13,8 +13,9 @@ use App\Procedure;
 | and give it the controller to call when that URI is requested.
 |
 */
-    Route::get('/user/{id}', 'PageController@getUserModifiedPatients');
-
+  Route::get('/', function () {
+      return view('welcome');
+  });
 /*
 |--------------------------------------------------------------------------
 | Application Routes
@@ -30,24 +31,11 @@ use App\Procedure;
 Route::group(['middleware' => 'web'], function () {
     Route::auth();
 
-    Route::get('/', function () {
-        return view('welcome');
-    });
 
-    //Route::get('/accessTest', 'PageController@getAccessTest');
+    Route::get('/home', 'HomeController@index');
+    Route::resource('tasks', 'TaskController');
+    Route::post('/ajaxTaskStatus', 'TaskController@changeStatus');
 
-    Route::get('/tester', function() {
-       return view('tester');
-    });
-
-    Route::get('/admin', function() {
-           if(!empty(Auth::user()) && Auth::user()->hasRole('admin')) {
-                return view('tester');
-           }
-           else {
-               return view('welcome');
-           }
-    });
 
     // ProcedureController Resource - Good
     Route::resource('procedures', 'ProcedureController');
@@ -123,43 +111,18 @@ Route::group(['middleware' => 'web'], function () {
     ]);
 
 
-    Route::get('/testForm', function() {
-      return view('patients.test');
+    Route::get('/tester', function() {
+       return view('tester');
     });
 
-    Route::post('/testForm', [
-      'as' => 'testForm',
-      'uses' => 'PatientController@testForm'
-    ]);
-
-    Route::get('/test', function() {
-      $x = array();
-      $y = array();
-      $counter = 1;
-      $years = array(2010, 2011, 2012, 2013, 2014, 2015, 2016);
-      foreach($years as $year) {
-        for($month = 1; $month <= 12; $month++) {
-          if ($month < 10) {
-              $month = '0' . $month;
-          }
-
-          $search = $year . '-' . $month;
-
-          $revenues = App\Transaction::where('date_from', 'like', $search .'%')->get();
-
-          $sum = 0;
-          foreach ($revenues as $revenue) {
-              $sum += $revenue->amount;
-          }
-
-          array_push($x, (string)$year . "-" . (string)$month);
-          array_push($y, $sum);
-          $counter ++;
-        }
-      }
-      return view('patients.test')->with('x', $x)->with('y', $y);
+    // test
+    Route::get('/admin', function() {
+           if(!empty(Auth::user()) && Auth::user()->hasRole('admin')) {
+                return view('tester');
+           }
+           else {
+               return view('welcome');
+           }
     });
 
-
-    Route::get('/home', 'HomeController@index');
 });
