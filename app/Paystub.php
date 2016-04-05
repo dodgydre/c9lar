@@ -10,5 +10,10 @@ class Paystub extends Model
     {
       return $this->belongsTo('App\Employee');
     }
+    
+    public function eiToDate($current_date) 
+    {
+      return $this->employee->eiToDate($current_date);
+    }
 
 }

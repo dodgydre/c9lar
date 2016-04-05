@@ -98,14 +98,15 @@
                   <td> {{ $paystub->ei }} </td>
                   <td> {{ $paystub->fed_tax }} </td>
                   <td> {{ $paystub->prov_tax }} </td>
-                  <td> {{ $paystub->net }} </td>
+                  <!--<td> {{ $paystub->net }} </td>-->
+                  <td> {{ $paystub->eiToDate($paystub->ppe) }} </td>
                 </tr>
               @endforeach
             </tbody>
             <tfoot>
               <tr>
                 <td colspan=7>
-                  {{ $employee->eiToDate('2016') }}
+                  
                 </td>
               </tr>
             </tfoot>
