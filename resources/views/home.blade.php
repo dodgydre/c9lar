@@ -15,7 +15,24 @@
   </div>
 
   <div class="row">
-    <div class="col-md-10 col-md-offset-1">
+    <div class="col-md-4">
+      <div class="panel panel-info">
+        <div class="panel-heading">
+          <h3 class="panel-title">Open Tasks</h3>
+        </div>
+        <div class="panel-body">
+          <div class="list-group">
+            @foreach($tasks as $task)
+              <a href="{{route('tasks.show', $task->id)}}" class="list-group-item">
+                {{$task->name}}
+              </a>
+            @endforeach
+          </div>
+          <a href="/tasks">View all tasks</a>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-8">
       <div class="panel panel-info">
 
         <div class="panel-body">

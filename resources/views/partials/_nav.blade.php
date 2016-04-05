@@ -25,6 +25,9 @@
                         <li class="{{ set_active(['/insurers/*']) }}"><a href="{{ url('/insurers') }}">Insurers</a></li>
                         <li class="{{ set_active(['/patients/*']) }}"><a href="{{ url('/patients') }}">Patients</a></li>
                         <li class="{{ set_active(['/todo/*']) }}"><a href="{{ url('/tasks') }}">Todo</a></li>
+                        @role('admin', 'owner')
+                          <li class="{{ set_active(['/employee/*']) }}"><a href="{{ url('/employees') }}">Employees</a></li>
+                        @endrole
                     @endif
                 </ul>
 

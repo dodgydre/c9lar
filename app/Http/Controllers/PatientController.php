@@ -241,16 +241,13 @@ class PatientController extends Controller
         'procedure_description' => 'required'
       ));
 
-      //dd(Carbon::createFromFormat('d/m/Y', $request->date_from)->toDateString());
-      //$date = Carbon::createFromFormat('d/m/Y', $request->date_from);
-
       $patient = Patient::find($request->patient_id);
       $procedure = Procedure::where('code', '=', $request->procedure_code)->first();
 
       $charge = new Transaction;
       $charge->patient_id = $request->patient_id;
       $charge->chart_number = $patient->chart_number;
-      $charge->date_from = Carbon::createFromFormat('d/m/Y', $request->date_from);
+      $charge->date_from = Carbon::createFromFormat('m/d/Y', $request->date_from);
       $charge->attending_provider = $request->attending_provider;
       $charge->procedure_code = $request->procedure_code;
       $charge->procedure_description = $procedure->description;
@@ -291,7 +288,7 @@ class PatientController extends Controller
       $payment = new Transaction;
       $payment->patient_id = $request->patient_id;
       $payment->chart_number = $patient->chart_number;
-      $payment->date_from =  Carbon::createFromFormat('d/m/Y', $request->date_from);
+      $payment->date_from =  Carbon::createFromFormat('m/d/Y', $request->date_from);
       $payment->attending_provider = $request->attending_provider;
       $payment->procedure_code = $request->payment_code;
       $payment->procedure_description = $procedure->description;

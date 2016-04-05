@@ -6,6 +6,7 @@ use App\Http\Requests;
 use Illuminate\Http\Request;
 
 use App\Transaction;
+use App\Task;
 
 class HomeController extends Controller
 {
@@ -54,6 +55,10 @@ class HomeController extends Controller
           }
         }
       }
-      return view('home')->with('x', $x)->with('y', $y);
+
+      $tasks = Task::where('status', '=', 0)->orderBy('updated_at', 'desc')->take(5)->get();
+
+
+      return view('home')->with('x', $x)->with('y', $y)->withTasks($tasks);
     }
 }

@@ -13,9 +13,7 @@ use App\Procedure;
 | and give it the controller to call when that URI is requested.
 |
 */
-  Route::get('/', function () {
-      return view('welcome');
-  });
+
 /*
 |--------------------------------------------------------------------------
 | Application Routes
@@ -31,11 +29,18 @@ use App\Procedure;
 Route::group(['middleware' => 'web'], function () {
     Route::auth();
 
+    Route::get('/splash', function () {
+        return view('welcome');
+    });
 
+    Route::get('/', 'HomeController@index');
     Route::get('/home', 'HomeController@index');
+
     Route::resource('tasks', 'TaskController');
     Route::post('/ajaxTaskStatus', 'TaskController@changeStatus');
 
+    // EmployeeController Resource
+    Route::resource('employees', 'EmployeeController');
 
     // ProcedureController Resource - Good
     Route::resource('procedures', 'ProcedureController');
