@@ -80,35 +80,50 @@
           <table class="table table-striped">
             <thead>
               <tr>
-                <th width="14%"> Pay Period End </th>
-                <th width="14%"> Gross Pay </th>
-                <th width="14%"> CPP </th>
-                <th width="14%"> EI </th>
-                <th width="14%"> Federal Tax </th>
-                <th width="14%"> Provincial Tax </th>
-                <th width="14%"> Net Pay </th>
+                <th width="10%"> Period # </th>
+                <th width="10%"> Pay Period End </th>
+                <th width="10%"> Gross Pay </th>
+                <th width="10%"> CPP </th>
+                <th width="10%"> CPP (Emp) </th>
+                <th width="10%"> EI </th>
+                <th width="10%"> EI (Emp)</th>
+                <th width="10%"> Federal Tax </th>
+                <th width="10%"> Provincial Tax </th>
+                <th width="10%"> Net Pay </th>
               </tr>
             </thead>
-            <tbody>
+            <tbody> <?php $current_year = ''; $pay_period = 1; ?>
               @foreach($employee->paystubs as $paystub)
+                <?php
+                  $paystub_year = Carbon\Carbon::createFromFormat('Y-m-d', $paystub->ppe)->year;
+                  if($current_year == '') {
+                    $current_year = $paystub_year;
+                    echo '<tr><td colspan="10" class="info text-center">' . $current_year . ' </td> </tr>';
+
+                  }
+                  if($current_year != $paystub_year) {
+                    $current_year = $paystub_year;
+                    $pay_period = 1;
+                    echo '<tr><td colspan="10" class="info text-center">' . $current_year . ' </td> </tr>';
+                  }
+                  ?>
                 <tr>
+                  <td> {{ $pay_period }} </td>
                   <td> {{ $paystub->ppe }} </td>
                   <td> {{ $paystub->gross }} </td>
                   <td> {{ $paystub->cpp }} </td>
+                  <td> {{ $paystub->emp_cpp }} </td>
                   <td> {{ $paystub->ei }} </td>
+                  <td> {{ $paystub->emp_ei }} </td>
                   <td> {{ $paystub->fed_tax }} </td>
                   <td> {{ $paystub->prov_tax }} </td>
-                  <!--<td> {{ $paystub->net }} </td>-->
-                  <td> {{ $paystub->eiToDate($paystub->ppe) }} </td>
+                  <td> {{ $paystub->net }} </td>
+                  <?php $pay_period++; ?>
                 </tr>
               @endforeach
             </tbody>
             <tfoot>
-              <tr>
-                <td colspan=7>
-                  
-                </td>
-              </tr>
+
             </tfoot>
           </table>
         </div>

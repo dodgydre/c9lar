@@ -222,7 +222,19 @@ class PatientController extends Controller
       Session::flash('success', 'The patient was deleted');
       return redirect()->route('patients.index');
     }
-
+/*******************************************************************************
+/*******************************************************************************
+/*******************************************************************************
+/*******************************************************************************
+/*******************************************************************************
+/*******************************************************************************
+/*******************************************************************************
+/*******************************************************************************
+/*******************************************************************************
+/*******************************************************************************
+/*******************************************************************************
+/*******************************************************************************
+/******************************************************************************/
     /**
      *  Add a new Charge to the Transactions table for a given patient
      *
@@ -258,8 +270,28 @@ class PatientController extends Controller
       $charge->unapplied_amount = $request->total;
 
       $charge->save();
-
       $patient->remaining_balance += $charge->total;
+
+      // Is the procedure taxable?  If so add an extra transaction
+      if($procedure->taxable == 1) {
+        $tax_procedure = Procedure::where('code', '=', 'TAX')->first();
+
+        $tax = new Transaction;
+        $tax_total = ($request->total) * ($tax_procedure->amount)/100;
+        $tax->patient_id = $request->patient_id;
+        $tax->chart_number = $patient->chart_number;
+        $tax->date_from = Carbon::createFromFormat('m/d/Y', $request->date_from);
+        $tax->attending_provider = $request->attending_provider;
+        $tax->procedure_code = $tax_procedure->code;
+        $tax->procedure_description = $tax_procedure->description;
+        $tax->transaction_type = $tax_procedure->type;
+        $tax->total = $tax_total;
+        $tax->unapplied_amount = $tax_total;
+
+        $tax->save();
+        $patient->remaining_balance += $tax->total;
+      }
+
       $patient->save();
 
       return redirect()->route('patients.show', [$patient->id]);

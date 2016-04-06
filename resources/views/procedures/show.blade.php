@@ -8,7 +8,7 @@
   <div class="col-md-8">
     <h1> Procedure Code: {{ $procedure->code }}</h1>
 
-    <p> Procedure Type: 
+    <p> Procedure Type:
       <?php
         switch($procedure->type) {
           case 'A':
@@ -50,13 +50,22 @@
           case 'T':
             echo "Insurance Adjustment";
             break;
+          case 'Z':
+            echo "Tax Rate";
+            break;
           default:
             echo '';
             break;
-        } 
+        }
       ?> ({{ $procedure->type }}) </p>
     <p> Procedure Description: {{ $procedure->description }} </p>
-    <p> Procedure Amount: ${{ $procedure->amount }} </p>
+    @if($procedure->type == 'Z')
+      <p> Tax Rate: {{ $procedure->amount }}% </p>
+    @else
+      <p> Procedure Amount: ${{ $procedure->amount }} </p>
+      <p> {{ ($procedure->inactive == 1) ? 'INACTIVE' : '' }}</p>
+      <p> {{ ($procedure->taxable == 1) ? 'TAXABLE' : '' }} </p>
+    @endif
   </div>
   <div class="col-md-4">
     <div class="well">

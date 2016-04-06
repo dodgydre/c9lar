@@ -59,6 +59,8 @@ class ProcedureController extends Controller
         $procedure->type = $request->type;
         $procedure->description = $request->description;
         $procedure->amount = $request->amount;
+        $procedure->taxable = $request->taxable;
+        $procedure->inactive = $request->inactive;
 
         $procedure->save();
 
@@ -88,6 +90,9 @@ class ProcedureController extends Controller
     public function edit($id)
     {
         $procedure = Procedure::find($id);
+        if($procedure->type == 'Z') {
+          return view('procedures.edit.tax')->withProcedure($procedure);
+        }
         return view('procedures.edit')->withProcedure($procedure);
     }
 
@@ -113,7 +118,9 @@ class ProcedureController extends Controller
       $procedure->type = $request->input('type');
       $procedure->description = $request->input('description');
       $procedure->amount = $request->input('amount');
-
+      $procedure->taxable = $request->input('taxable');
+      $procedure->inactive = $request->input('inactive');
+      //dd($request);
       $procedure->save();
 
       Session::flash('success', 'The procedure was updated');

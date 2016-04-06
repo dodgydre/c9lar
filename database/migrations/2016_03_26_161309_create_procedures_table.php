@@ -18,6 +18,8 @@ class CreateProceduresTable extends Migration
             $table->string('type', 1);  // should be just one character long
             $table->string('description', 255);
             $table->decimal('amount', 5, 2)->default(0.00);
+            $table->boolean('taxable')->default(0);
+            $table->boolean('inactive')->default(0);
             $table->timestamps();
         });
     }

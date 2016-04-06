@@ -43,6 +43,7 @@
               <table class="table table-striped" id="procedure_table">
                 <thead>
                   <tr>
+                    <th> Taxable </th>
                     <th> Code </th>
                     <th> Type </th>
                     <th> Description </th>
@@ -52,8 +53,9 @@
                   </tr>
                 </thead>
                 <tbody>
-                  @foreach($procedures as $procedure)
-                    <tr class="type{{$procedure->type}} procedure_row">
+                  @foreach($procedures as $procedure) 
+                    <tr class="type{{$procedure->type}} procedure_row {{ ($procedure->inactive == 1) ? 'danger' : ''}}">
+                      <td> <span class="glyphicon glyphicon-{{ ($procedure->taxable == 1) ? 'check' : 'unchecked' }}"></span> </td>
                       <td> {{ $procedure->code }}</td>
                       <td> {{ $procedure->type }}</td>
                       <td> {{ $procedure->description }}</td>
@@ -101,6 +103,7 @@ $(document).ready(function() {
   $('#procedure_table').DataTable({
       "paging": false,
       "columns": [
+        null,
         null,
         null,
         null,
