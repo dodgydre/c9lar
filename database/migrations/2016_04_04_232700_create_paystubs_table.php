@@ -26,6 +26,7 @@ class CreatePaystubsTable extends Migration
             $table->decimal('net', 7, 2);
             $table->timestamps();
             $table->softDeletes();
+            
             $table->foreign('employee_id')->references('id')->on('employees');
         });
     }

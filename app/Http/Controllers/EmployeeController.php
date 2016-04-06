@@ -78,8 +78,25 @@ class EmployeeController extends Controller
    */
   public function show($id)
   {
-      $employee = Employee::find($id);
-      return view('employees.show')->withEmployee($employee);
+      $employee = Employee::with('paystubs')->find($id);
+
+      $paystubs_list = [];
+      $current_year = '';
+      foreach($employee->paystubs as $paystub) {
+        $paystub_year = Carbon::createFromFormat('Y-m-d', $paystub->ppe)->year;
+        if($current_year == '') {
+          $current_year = $paystub_year;
+          $paystub_list[$current_year] = [];
+        }
+        if($current_year != $paystub_year) {
+          $current_year = $paystub_year;
+          $paystub_list[$current_year] = [];
+        }
+        array_push($paystub_list[$current_year], $paystub);
+        
+      }
+      //dd($paystub_list);
+      return view('employees.show')->withEmployee($employee)->withPaystubs($paystub_list);
   }
 
   /**
