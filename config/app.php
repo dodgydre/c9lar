@@ -169,6 +169,8 @@ return [
          * Debug Bar: https://github.com/barryvdh/laravel-debugbar
          */
         Barryvdh\Debugbar\ServiceProvider::class,
+        /*  DomPDF */
+        Barryvdh\DomPDF\ServiceProvider::class,
     ],
 
     /*
@@ -224,6 +226,8 @@ return [
          */
          'Form' => Collective\Html\FormFacade::class,
          'Html' => Collective\Html\HtmlFacade::class,
+         /*  DomPDF  */
+         'PDF' => Barryvdh\DomPDF\Facade::class,
     ],
 
 ];

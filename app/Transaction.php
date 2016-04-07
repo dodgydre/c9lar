@@ -48,9 +48,9 @@ class Transaction extends Model
     {
       if($this->total < 0)
       {
-        if($this->unapplied_amount == 0) return '';
-        elseif($this->unapplied_amount == $this->total) return 'warning';
-        elseif($this->unapplied_amount < 0) return 'info';
+        if($this->unapplied_amount == 0) return 'fully_applied';
+        elseif($this->unapplied_amount == $this->total) return 'warning not_applied';
+        elseif($this->unapplied_amount < 0) return 'info partially_applied';
         else return 'danger';
       }
     }
@@ -60,10 +60,10 @@ class Transaction extends Model
       if($this->total > 0)
       $paid = $this->g_amount_paid + $this->i1_amount_paid + $this->i2_amount_paid + $this->i3_amount_paid;
       {
-        if($paid == 0) return 'warning';
-        if($this->total == -$paid) return '';
-        if($this->total > -$paid) return 'info';
-        else return 'danger';
+        if($paid == 0) return 'warning not_paid';
+        if($this->total == -$paid) return ' fully_paid';
+        if($this->total > -$paid) return 'info partially_paid';
+        else return 'danger over_paid';
       }
     }
     public function unapplied()

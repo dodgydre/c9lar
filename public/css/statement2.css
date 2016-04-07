@@ -1,0 +1,243 @@
+.clearfix:after {
+  clear: both;
+  content: "";
+  display: table;
+}
+
+body {
+  position: relative;
+  width: 19cm;
+  height: 29cm;
+  color: #001028;
+  background: #ffffff;
+  font-family: Arial, sans-serif;
+  font-size: 12px;
+}
+
+/**********
+ *
+ * LOGO
+ *
+ **********/
+.logo {
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.logo img {
+  width: 300px;
+}
+
+/**********
+ *
+ * Address Block
+ *
+ **********/
+.address_block {
+  font-size: 14px;
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+/**********
+ *
+ * HR
+ *
+ **********/
+.top_line {
+  border-top: 0.5px solid black;
+}
+
+/**********
+ *
+ * Patient + Instruction Table
+ *
+ **********/
+.patient_instructions {
+  width: 100%;
+  border-collapse: collapse;
+  border-spacing: 0;
+  margin-bottom: 20px;
+}
+
+.patient_instructions tr {
+  padding-top: 10px;
+  margin-bottom: 20px;
+}
+
+.patient {
+  font-weight: bold;
+  text-align: right;
+  line-height: 1.1em;
+  width: 20%;
+  padding-right: 20px;
+}
+
+.address {
+  line-height: 1.1em;
+  width: 30%;
+}
+
+.instructions {
+  line-height: 1.1em;
+  width: 50%;
+}
+
+.instructions span {
+  font-weight: bold;
+  text-decoration: underline;
+}
+
+/**********
+ *
+ * Procedures Table
+ *
+ **********/
+ .procedures {
+  width: 100%;
+  border-collapse: collapse;
+  border-spacing: 0;
+  margin-bottom: 20px;
+}
+
+.procedure table tr:nth-child(2n-1) td {
+  background: #F5F5F5;
+}
+
+.procedures td {
+  padding-top: 5px;
+  padding-bottom: 5px;
+}
+
+.procedures th {
+  font-weight: bold;
+  color: #222;
+  border-top: 1px solid black;
+  border-bottom: 1px solid black;
+  text-align: center;
+}
+
+.date { width: 15%; }
+.desc { width: 40%; }
+.proc { width: 15%; }
+.units { width: 15%; }
+.total {width: 15%; }
+
+td.date,
+td.proc,
+td.units,
+td.total {
+  text-align: center;
+}
+
+td .desc {
+  text-align: left;
+}
+
+.total_text {
+  text-align: right;
+}
+.total_num {
+  text-align: center;
+}
+
+.provider_div {
+  padding: 20px;
+  border: 1px solid black;
+}
+.provider_div span {
+  display: inline-block;
+  text-align: right;
+  width: 120px;
+  padding-right: 15px;
+  font-weight: bold;
+}
+
+/**********
+ *
+ * Assign and Release
+ *
+ **********/
+ .release {
+   display: inline-block;
+   width: 120px;
+   padding-left: 15px;
+   padding-right: 15px;
+ }
+
+ .signature_line {
+   display: inline-block;
+   width: 300px;
+   border-bottom: 1px solid black;
+   margin-right: 15px;
+ }
+ .date_line {
+   display:inline-block;
+   width: 150px;
+   border-bottom: 1px solid black;
+   margin-left: 15px;
+   margin-right: 15px;
+   margin-top: 100px;
+ }
+
+/**********
+*
+* Bottom Address
+*
+**********/
+.bottom_line {
+  border-top: 1px dashed black;
+}
+
+.bottom_address {
+  width: 100%;
+  border-collapse: collapse;
+  border-spacing: 0;
+  margin-bottom: 20px;
+}
+.bottom_blank {
+  width: 40%;
+}
+
+.bottom_address_block {
+  width: 35%;
+}
+.bottom_date {
+  text-align: right;
+}
+
+/**********
+*
+* Bottom CC
+*
+**********/
+.cc_left {
+  width: 55%;
+  padding-left: 15px;
+  line-height: 150%;
+}
+.auth_right {
+  line-height: 150%;
+
+}
+
+.agree {
+  display: inline-block;
+  padding-left: 100px;
+}
+
+.cc_signature_line {
+  display: inline-block;
+  margin-left: 100px;
+  border-bottom: 1px solid black;
+  width: 375px;
+  margin-top: 35px;
+}
+
+.sig_table {
+  width: 100%;
+}
+.sig_pag_text { width: 150px; }
+.sig_line { width: 350px; border-bottom: 1px solid black; }
+.sig_date_text { padding-left: 20px; width: 50px; }
+.sig_date_line { width: 100px; border-bottom: 1px solid black; }

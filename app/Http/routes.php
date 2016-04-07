@@ -13,7 +13,12 @@ use App\Procedure;
 | and give it the controller to call when that URI is requested.
 |
 */
-
+Route::get('testPrint', function() {
+  $data = [];
+  $pdf = PDF::loadView('testStatement', $data);
+  return $pdf->stream();
+  return view('testStatement');
+});
 /*
 |--------------------------------------------------------------------------
 | Application Routes

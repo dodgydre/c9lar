@@ -173,7 +173,9 @@
   <div class="col-md-12">
     <div class="panel panel-info">
       <div class="panel-heading">
-        <h3 class="panel-title">Charges</h3>
+        <h3 class="panel-title pull-left">Charges</h3>
+        <span class="pull-right"><button id="hide_fully_paid" class="btn btn-sm btn-default">Hide Fully Paid</button></span>
+        <div class="clearfix"> </div>
       </div>
       <div class="panel-body charges-panel">
         <table class="table table-striped">
@@ -249,7 +251,10 @@
   <div class="col-md-12">
     <div class="panel panel-info">
       <div class="panel-heading">
-        <h3 class="panel-title">Payments</h3>
+
+        <h3 class="panel-title pull-left">Payments</h3>
+        <span class="pull-right"><button id="hide_fully_applied" class="btn btn-sm btn-default">Hide Fully Applied</button></span>
+        <div class="clearfix"> </div>
       </div>
       <div class="panel-body payments-panel">
         <table class="table table-striped">
@@ -321,11 +326,7 @@
                 <td> {{ $payment->deposit_id }} </td>
                 <td> {{ $payment->unapplied_amount }} </td>
                 <td>
-                  <?php
-                    if($payment->unapplied_amount == 0) { $button_class = "btn-default"; }
-                    else { $button_class = "btn-primary"; }
-                  ?>
-                  <a href="/patients/{{$patient->id}}/apply/{{$payment->id}}/from/{{$payment->who_paid}}"><button class="btn {{$button_class}} btn-sm">Apply</button></a>
+                  <a href="/patients/{{$patient->id}}/apply/{{$payment->id}}/from/{{$payment->who_paid}}"><button class="btn {{ ($payment->unapplied_amount == 0) ? 'btn-default' : 'btn-primary' }} btn-sm">Apply</button></a>
                 </td>
               </tr>
             @endforeach
@@ -403,6 +404,22 @@
       autoclose: true,
       keyboardNavigation: true,
   });
+
+  $('#hide_fully_applied').click(function() {
+    $('.fully_applied').toggleClass('hidden');
+    if($(this).text() == 'Hide Fully Applied') {
+      $(this).text('Show Fully Applied').addClass('btn-primary');
+    }
+    else { $(this).text('Hide Fully Applied').removeClass('btn-primary'); }
+  });
+
+  $('#hide_fully_paid').click(function() {
+    $('.fully_paid').toggleClass('hidden');
+    if($(this).text() == 'Hide Fully Paid') {
+      $(this).text('Show Fully Paid').addClass('btn-primary');
+    } else { $(this).text('Hide Fully Paid').removeClass('btn-primary'); }
+  });
+
   /*$('.datepicker').on("changeDate", function() {
     $(this).val = $(this).datepicker('getFormattedDate');
   });*/
