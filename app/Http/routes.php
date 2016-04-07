@@ -19,6 +19,10 @@ Route::get('testPrint', function() {
   return $pdf->stream();
   return view('testStatement');
 });
+
+
+
+
 /*
 |--------------------------------------------------------------------------
 | Application Routes
@@ -33,6 +37,11 @@ Route::get('testPrint', function() {
 
 Route::group(['middleware' => 'web'], function () {
     Route::auth();
+
+    Route::get('/patients/{id}/testStatement', [
+        'as' => 'patients.testStatement',
+        'uses' => 'PatientController@generateStatement'
+        ]);
 
     Route::get('/splash', function () {
         return view('welcome');

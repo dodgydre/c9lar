@@ -53,14 +53,14 @@ body {
  * Patient + Instruction Table
  *
  **********/
-.patient_instructions {
+.patient_instructions_table {
   width: 100%;
   border-collapse: collapse;
   border-spacing: 0;
   margin-bottom: 20px;
 }
 
-.patient_instructions tr {
+.patient_instructions_table tr {
   padding-top: 10px;
   margin-bottom: 20px;
 }
@@ -93,23 +93,23 @@ body {
  * Procedures Table
  *
  **********/
- .procedures {
+ .procedures_table {
   width: 100%;
   border-collapse: collapse;
   border-spacing: 0;
   margin-bottom: 20px;
 }
 
-.procedure table tr:nth-child(2n-1) td {
+.procedures_table table tr:nth-child(2n-1) td {
   background: #F5F5F5;
 }
 
-.procedures td {
+.procedures_table td {
   padding-top: 5px;
   padding-bottom: 5px;
 }
 
-.procedures th {
+.procedures_table th {
   font-weight: bold;
   color: #222;
   border-top: 1px solid black;
@@ -179,65 +179,3 @@ td .desc {
    margin-right: 15px;
    margin-top: 100px;
  }
-
-/**********
-*
-* Bottom Address
-*
-**********/
-.bottom_line {
-  border-top: 1px dashed black;
-}
-
-.bottom_address {
-  width: 100%;
-  border-collapse: collapse;
-  border-spacing: 0;
-  margin-bottom: 20px;
-}
-.bottom_blank {
-  width: 40%;
-}
-
-.bottom_address_block {
-  width: 35%;
-}
-.bottom_date {
-  text-align: right;
-}
-
-/**********
-*
-* Bottom CC
-*
-**********/
-.cc_left {
-  width: 55%;
-  padding-left: 15px;
-  line-height: 150%;
-}
-.auth_right {
-  line-height: 150%;
-
-}
-
-.agree {
-  display: inline-block;
-  padding-left: 100px;
-}
-
-.cc_signature_line {
-  display: inline-block;
-  margin-left: 100px;
-  border-bottom: 1px solid black;
-  width: 375px;
-  margin-top: 35px;
-}
-
-.sig_table {
-  width: 100%;
-}
-.sig_pag_text { width: 150px; }
-.sig_line { width: 350px; border-bottom: 1px solid black; }
-.sig_date_text { padding-left: 20px; width: 50px; }
-.sig_date_line { width: 100px; border-bottom: 1px solid black; }

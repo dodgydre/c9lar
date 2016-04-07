@@ -18,7 +18,7 @@
 
     <hr class="top_line"/>
 
-    <table class="patient_instructions">
+    <table class="patient_instructions_table">
       <tr>
         <td class="patient">
           Patient:<br />
@@ -29,12 +29,13 @@
           Chart #:<br />
         </td>
         <td class="address">
-           Andreas Georghiou<br />
-           5 Atlantic Ave<br />
-           St. John's, NL, A1E 1K9<br />
-           Canada<br />
+           {{ $patient->first_name }} {{ $patient->last_name }}<br />
+           {{ $patient->street1 }}<br />
+           {{ isset($patient->street2) ? $patient->street2 . '<br />' : '' }}
+           {{ isset($patient->city) ? $patient->city . ', ' : '' }} {{ isset($patient->province) ? $patient->province . ', ' : '' }} {{ $patient->postcode }}<br />
+           {{ $patient->country }}<br />
            <br />
-           GEOAN000
+           {{ $patient->chart_number }}
         </td>
         <td class="instructions">
           <span>Instructions:</span><br />
@@ -51,7 +52,7 @@
 
     <main>
 
-      <table class="procedures">
+      <table class="procedures_table">
         <thead>
           <tr>
             <th class="date">Date</th>
@@ -62,26 +63,25 @@
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <td class="date">4/5/2016</td>
-            <td class="desc">1hr Therapeutic Massage</td>
-            <td class="proc">1hrRMT</td>
-            <td class="units">1</td>
-            <td class="total">$80.00</td>
-          </tr>
-          <tr>
-            <td class="date">4/5/2016</td>
-            <td class="desc">HST @ 13%</td>
-            <td class="proc">TAX</td>
-            <td class="units">1</td>
-            <td class="total">$10.40</td>
-          </tr>
+          @foreach($transactions as $transaction)
+            <tr>
+              <td class="date">{{ date('d/m/Y' ,strtotime($transaction->date_from)) }} </td>
+              <td class="desc">{{ $transaction->description }}</td>
+              <td class="proc">{{ $transaction->code }}</td>
+              <td class="units">{{ $transaction->units or 1}}</td>
+              <td class="total">${{ number_format($transaction->total,2) }}</td>
+            </tr>
+          @endforeach
 
+          @if($transactions->count() < 17)
+            @for($i = 0; $i < 18-$transactions->count(); $i++)
+              <tr> <td> </td> <td>&nbsp; </td> <td> </td> <td> </td> <td> </td> </tr>
+            @endfor
+          @endif
+          <!--<tr> <td> </td> <td>&nbsp; </td> <td> </td> <td> </td> <td> </td> </tr>
           <tr> <td> </td> <td>&nbsp; </td> <td> </td> <td> </td> <td> </td> </tr>
           <tr> <td> </td> <td>&nbsp; </td> <td> </td> <td> </td> <td> </td> </tr>
-          <tr> <td> </td> <td>&nbsp; </td> <td> </td> <td> </td> <td> </td> </tr>
-          <tr> <td> </td> <td>&nbsp; </td> <td> </td> <td> </td> <td> </td> </tr>
-          <tr> <td> </td> <td>&nbsp; </td> <td> </td> <td> </td> <td> </td> </tr>
+          <tr> <td> </td> <td>&nbsp; </td> <td> </td> <td> </td> <td> </td> </tr>-->
 
           <tr>
             <td colspan="2" rowspan="5" class="provider_info">
@@ -92,23 +92,23 @@
 
             </td>
             <td colspan="2" class="total_text"> Total Charges: </td>
-            <td class="total_num"> $90.40 </td>
+            <td class="total_num"> ${{ number_format($sum_charges,2) }} </td>
           </tr>
           <tr>
             <td colspan="2" class="total_text"> Total Payments: </td>
-            <td class="total_num"> $0.00 </td>
+            <td class="total_num"> ${{ number_format($sum_payments,2) }} </td>
           </tr>
-          <tr>
+          <!--<tr>
             <td colspan="2" class="total_text"> Total Adjustments: </td>
             <td class="total_num"> $0.00 </td>
-          </tr>
+          </tr>-->
           <tr>
             <td colspan="2" class="total_text"> Total Due This Visit: </td>
-            <td class="total_num"> $90.40 </td>
+            <td class="total_num"> ${{ number_format($sum_charges - $sum_payments,2) }} </td>
           </tr>
           <tr>
             <td colspan="2" class="total_text"> Total Account Balance: </td>
-            <td class="total_num"> $400.00 </td>
+            <td class="total_num"> ${{ number_format($patient->remaining_balance,2) }} </td>
           </tr>
 
         </tbody>
@@ -133,49 +133,10 @@
       <!--<span class="release">Patient Signature</span><span class="signature_line"></span>Date:<span class="date_line"></span><br />-->
       <br /><br />
     </main>
+    
     <footer>
-      <hr class="bottom_line" />
-<br />
 
-<table class="bottom_address">
-  <tr>
-    <td class="bottom_blank">
-      &nbsp;
-    </td>
-    <td class="bottom_address_block">
-      Pine Bud Chiropractic<br />
-      25 Allandale Road<br />
-      St. John's, NL, A1B 2Z6<br />
-      (709)-726-4343<br />
-    </td>
-    <td class="bottom_date">
-      Date: 5/4/2016 10:15 AM
-    </td>
-  </tr>
-</table>
 
-<table class="bottom_address">
-  <tr>
-    <td class="cc_left">
-      <p>
-        Name:<br />
-        CC Type:<br />
-        CC No.:<br />
-      </p>
-    </td>
-    <td class="auth_right">
-      <p>
-        Authrization Code:<br />
-        Exp Date:<br />
-        <strong>Total:</strong>
-      </p>
-    </td>
-  </tr>
-</table>
-    <span class="agree">I AGREE TO PAY THE ABOVE TOTAL AMOUNT ACCORDING<br />
-TO CARD ISSUER AGREEMENT.</span>
-<br />
-<span class="cc_signature_line"></span>
     </footer>
 </body>
 </html>

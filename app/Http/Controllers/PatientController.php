@@ -236,6 +236,42 @@ class PatientController extends Controller
 /*******************************************************************************
 /******************************************************************************/
     /**
+     * 
+     * Generate a new statement
+     *  @param id, date_from, date_to
+     * 
+     **/
+    public function generateStatement($id) {
+      $patient = Patient::find($id);
+      
+      $date_from = new Carbon('last friday');
+      $date_to = new Carbon;
+      
+      $date_to = $date_to->tomorrow()->format('Y-m-d');
+      $date_from = $date_from->format('Y-m-d');
+      
+      $transactions = Transaction::where('patient_id','=', $patient->id)
+        ->where('date_from', '<', $date_to)
+        ->where('date_from', '>', $date_from)
+        ->get();
+      $sum_charges = 0;
+      $sum_payments = 0;
+      
+      foreach($transactions as $transaction) {
+        if($transaction->total > 0) $sum_charges += $transaction->total;
+        else $sum_payments += $transaction->total;
+      }
+      
+      $data = ['patient' => $patient, 'transactions' => $transactions, 'sum_charges' => $sum_charges, 'sum_payments' => $sum_payments];
+      $pdf = \PDF::loadView('testStatement', $data);
+      return $pdf->stream();
+  
+      return view('patients.testStatement')->withPatient($patient)->withTransactions($transactions)->with('sum_payments', $sum_payments)->with('sum_charges', $sum_charges);
+      dd($transactions);
+      
+    }
+    
+    /**
      *  Add a new Charge to the Transactions table for a given patient
      *
      * @param
@@ -259,7 +295,7 @@ class PatientController extends Controller
       $charge = new Transaction;
       $charge->patient_id = $request->patient_id;
       $charge->chart_number = $patient->chart_number;
-      $charge->date_from = Carbon::createFromFormat('m/d/Y', $request->date_from);
+      $charge->date_from = Carbon::createFromFormat('d/m/Y', $request->date_from);
       $charge->attending_provider = $request->attending_provider;
       $charge->procedure_code = $request->procedure_code;
       $charge->procedure_description = $procedure->description;
@@ -280,7 +316,7 @@ class PatientController extends Controller
         $tax_total = ($request->total) * ($tax_procedure->amount)/100;
         $tax->patient_id = $request->patient_id;
         $tax->chart_number = $patient->chart_number;
-        $tax->date_from = Carbon::createFromFormat('m/d/Y', $request->date_from);
+        $tax->date_from = Carbon::createFromFormat('d/m/Y', $request->date_from);
         $tax->attending_provider = $request->attending_provider;
         $tax->procedure_code = $tax_procedure->code;
         $tax->procedure_description = $tax_procedure->description;
@@ -320,7 +356,7 @@ class PatientController extends Controller
       $payment = new Transaction;
       $payment->patient_id = $request->patient_id;
       $payment->chart_number = $patient->chart_number;
-      $payment->date_from =  Carbon::createFromFormat('m/d/Y', $request->date_from);
+      $payment->date_from =  Carbon::createFromFormat('d/m/Y', $request->date_from);
       $payment->attending_provider = $request->attending_provider;
       $payment->procedure_code = $request->payment_code;
       $payment->procedure_description = $procedure->description;
