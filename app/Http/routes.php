@@ -38,6 +38,14 @@ Route::get('testPrint', function() {
 Route::group(['middleware' => 'web'], function () {
     Route::auth();
 
+
+    // Apply a payment to the most recent charges until all empty.
+    Route::post('/applyPaymentsToRecent', [
+      'as' => 'patients.applyPaymentsToMostRecent',
+      'uses' => 'PatientController@applyPaymentsToMostRecent'
+    ]);
+
+
     Route::get('/patients/{id}/testStatement', [
         'as' => 'patients.testStatement',
         'uses' => 'PatientController@generateStatement'

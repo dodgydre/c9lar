@@ -15,11 +15,12 @@
         <div class="col-md-6">
           <ul class="list-group">
             <li class="list-group-item list-group-item-info">
-              <span class="pull-left"><strong>Name:</strong> {{ $patient->first_name }} {{ $patient->middle_name }} {{$patient->last_name }}</span>
+              <span class="pull-left"><h1 class="panel-title"><strong>Name:</strong> {{ $patient->first_name }} {{ $patient->middle_name }} {{$patient->last_name }}</h1></span>
               <span class="pull-right">Chart Number: <strong>{{ $patient->chart_number }}</strong></span>
-              <div class="clearfix">
+              <div class="clearfix"> </div>
 
-              </div>
+                  <a href="{{ route('patients.edit', $patient->id) }}" class="btn-h1-spacing btn btn-primary"><i class="fa fa-pencil-square-o"></i> Edit Patient</a>
+
              </li>
             <li class="list-group-item"> <strong>Gender:</strong> {{ $patient->gender }} </li>
             <li class="list-group-item"> <strong>Date of Birth:</strong> {{ $patient->dob }}</li>
@@ -132,16 +133,23 @@
 
 <!-- SOME INFO  -->
   <div class="col-md-4">
-    <div class="well">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title">Info</h3>
+      </div>
+      <div class="panel-body">
         <dl>
-          <dt>Created at:</dt>
-          <dd>{{ date('F j, Y, g:i a' ,strtotime($patient->created_at)) }} </dd>
-          <dt>Last updated at:</dt>
-          <dd>{{ date('F j, Y, g:i a' ,strtotime($patient->updated_at)) }} </dd>
-          <dt>Remaining Balance</dt>
-          <dd>{{ $patient->remaining_balance }}</dd>
+          <dt>Last Payment:</dt>
+          <dd>{{ $patient->date_of_last_pmt or ''}} ${{$patient->last_pmt}}</dd>
+          <dt>Remaining Balance:</dt>
+          <dd><span class="{{ ($patient->remaining_balance > 0) ? 'has_error' : 'has_success' }}">${{ $patient->remaining_balance }}</span></dd>
         </dl>
         <hr />
+        <div class="row">
+          <div class="col-sm-6">
+            <a href="{{ route('patients.testStatement', $patient->id) }}" class="btn btn-block btn-primary" target="_blank">Print Statement</a>
+          </div>
+        </div>
 
         <div class="row">
           <div class="col-sm-6">
@@ -327,6 +335,12 @@
                 <td> {{ $payment->unapplied_amount }} </td>
                 <td>
                   <a href="/patients/{{$patient->id}}/apply/{{$payment->id}}/from/{{$payment->who_paid}}"><button class="btn {{ ($payment->unapplied_amount == 0) ? 'btn-default' : 'btn-primary' }} btn-sm">Apply</button></a>
+                  @if($payment->unapplied_amount < 0)
+                    {{ Form::open(array('route' => 'patients.applyPaymentsToMostRecent')) }}
+                    {{ Form::hidden('patient_id', $patient->id) }}
+                    {{ Form::hidden('transaction_id', $payment->id) }}
+                    {{ Form::button('Apply to most recent', array('class' => 'btn btn-primary btn-sm', 'type'=>'submit')) }}
+                  @endif
                 </td>
               </tr>
             @endforeach

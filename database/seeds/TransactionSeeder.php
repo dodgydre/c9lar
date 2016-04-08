@@ -41,6 +41,7 @@ class TransactionSeeder extends Seeder
           'chart_number' => $chart_number,
           'units' => $unit,
           'amount' => $amount,
+          'units' => 1,
           'total' => $total,
           'procedure_code' => $randomProcedure->code,
           'procedure_description' => $randomProcedure->description,

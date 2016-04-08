@@ -66,8 +66,8 @@
           @foreach($transactions as $transaction)
             <tr>
               <td class="date">{{ date('d/m/Y' ,strtotime($transaction->date_from)) }} </td>
-              <td class="desc">{{ $transaction->description }}</td>
-              <td class="proc">{{ $transaction->code }}</td>
+              <td class="desc">{{ $transaction->procedure_description }}</td>
+              <td class="proc">{{ $transaction->procedure_code }}</td>
               <td class="units">{{ $transaction->units or 1}}</td>
               <td class="total">${{ number_format($transaction->total,2) }}</td>
             </tr>
@@ -133,7 +133,7 @@
       <!--<span class="release">Patient Signature</span><span class="signature_line"></span>Date:<span class="date_line"></span><br />-->
       <br /><br />
     </main>
-    
+
     <footer>
 
 

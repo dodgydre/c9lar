@@ -236,41 +236,41 @@ class PatientController extends Controller
 /*******************************************************************************
 /******************************************************************************/
     /**
-     * 
+     *
      * Generate a new statement
      *  @param id, date_from, date_to
-     * 
+     *
      **/
     public function generateStatement($id) {
       $patient = Patient::find($id);
-      
+
       $date_from = new Carbon('last friday');
       $date_to = new Carbon;
-      
+
       $date_to = $date_to->tomorrow()->format('Y-m-d');
       $date_from = $date_from->format('Y-m-d');
-      
+
       $transactions = Transaction::where('patient_id','=', $patient->id)
         ->where('date_from', '<', $date_to)
         ->where('date_from', '>', $date_from)
         ->get();
       $sum_charges = 0;
       $sum_payments = 0;
-      
+
       foreach($transactions as $transaction) {
         if($transaction->total > 0) $sum_charges += $transaction->total;
         else $sum_payments += $transaction->total;
       }
-      
+
       $data = ['patient' => $patient, 'transactions' => $transactions, 'sum_charges' => $sum_charges, 'sum_payments' => $sum_payments];
       $pdf = \PDF::loadView('testStatement', $data);
       return $pdf->stream();
-  
+
       return view('patients.testStatement')->withPatient($patient)->withTransactions($transactions)->with('sum_payments', $sum_payments)->with('sum_charges', $sum_charges);
       dd($transactions);
-      
+
     }
-    
+
     /**
      *  Add a new Charge to the Transactions table for a given patient
      *
@@ -362,12 +362,14 @@ class PatientController extends Controller
       $payment->procedure_description = $procedure->description;
       $payment->who_paid = $request->who_paid;
       $payment->transaction_type = $procedure->type;
+      $payment->units = 1;
       $payment->total = -($request->total);
       $payment->unapplied_amount = -($request->total);
 
+      // Also update the patient page to keep track of remaining balance, last payment, and date of last payment
       $patient->remaining_balance += $payment->total;
       $patient->last_pmt = $payment->total;
-      $patient->date_of_last_pmt = $request->date_from;
+      $patient->date_of_last_pmt = Carbon::createFromFormat('d/m/Y', $request->date_from);
 
       $payment->save();
       $patient->save();
@@ -538,4 +540,114 @@ class PatientController extends Controller
           return redirect()->route('patients.show', $patient->id);
        }
      }
+
+     /**
+      * Apply payments to the most recent outstanding transactions
+      *
+      **/
+      public function applyPaymentsToMostRecent(Request $request)
+      {
+        $patient_id = $request->patient_id;
+        $transaction_id = $request->transaction_id;
+
+        // Create an array of transactions affected by this operation to sort out totals after
+        $affectedTransactions = array();
+
+
+        $patient = Patient::find($patient_id);
+        // get the payment transaction collection:
+        $payTransaction = Transaction::find($transaction_id);
+        $availableTotal = $payTransaction->unapplied_amount;
+
+        array_push($affectedTransactions, $payTransaction->id);
+
+        switch($payTransaction->who_paid) {
+          case 'G':
+            $payor_col = 'g_amount_paid';
+            break;
+          case '1':
+            $payor_col = 'i1_amount_paid';
+            break;
+          case '2':
+            $payor_col = 'i2_amount_paid';
+            break;
+          case '3':
+            $payor_col = 'i3_amount_paid';
+            break;
+        }
+
+        echo "Patient ID: " . $patient->id . "<br/>";
+        echo "Patient Name: " . $patient->first_name . " " . $patient->last_name . "<br />";
+        echo "Who Paid: " . $payor_col . "<br />";
+        echo "Available total: $" . $availableTotal . "<br />";
+
+        // Get all of the patientTransactions
+        $patientTransactions = Transaction::where('patient_id', '=', $patient_id)->orderBy('date_from', 'desc')->get();
+        $patientCharges = $patient->charges;
+
+        foreach($patientCharges as $patientCharge) {
+          if($patientCharge->unapplied() > 0) {
+            echo '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' . $patientCharge->date_from . ' - Total: $' . $patientCharge->total . ' - Unapplied $' , $patientCharge->unapplied() . '<br />';
+
+            // There is a lot of money left in the payment so pay the full amount to the charge
+            if( $patientCharge->unapplied() <= abs($availableTotal) ) {
+              $amountToApply = $patientCharge->unapplied();
+              $availableTotal = $availableTotal + $patientCharge->unapplied();
+              echo "Applying full amount - $" . $patientCharge->unapplied() . " - amount remaining in payment: $ " . $availableTotal . " <br><br>";
+
+              // Apply the payment
+              $exists = DB::table('payments')->where('charge_ref', '=', $patientCharge->id)->where('payment_ref', $payTransaction->id)->get();
+              print_r($exists);
+
+              if($amountToApply != 0)
+              {
+                array_push($affectedTransactions, $patientCharge->id);
+                if(isset($exists)){
+                  $payTransaction->charges()->detach($patientCharge->id);
+                }
+                $amount = - abs($amountToApply);
+                $payTransaction->charges()->attach($patientCharge->id, ['amount' => $amount, 'who_paid' => $payTransaction->who_paid]);
+
+              }
+            }
+
+            // There is nothing left in the payment so move along
+            else if ($availableTotal == 0){
+              echo "nothing left to apply <br />";
+            }
+
+            // There is a enough left in the payment to cover a portion of the charge
+            else {
+              $amountToApply = $availableTotal;
+              $availableTotal = 0;
+
+              echo "Applying a portion of the full - $" . $amountToApply . " Nothing remaining in available total - " . $availableTotal . "<br>";
+
+              // Apply the payment
+              $exists = DB::table('payments')->where('charge_ref', '=', $patientCharge->id)->where('payment_ref', $payTransaction->id)->get();
+              print_r($exists);
+
+              if($amountToApply != 0)
+              {
+                array_push($affectedTransactions, $patientCharge->id);
+                if(isset($exists)){
+                  $payTransaction->charges()->detach($patientCharge->id);
+                }
+                $amount = - abs($amountToApply);
+                $payTransaction->charges()->attach($patientCharge->id, ['amount' => $amount, 'who_paid' => $payTransaction->who_paid]);
+
+              }
+            }
+          }
+        }
+        $this->doApplyPayments($affectedTransactions);
+        return redirect()->route('patients.show', [$patient_id]);
+
+
+
+
+      }
+
+
+
 }

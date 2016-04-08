@@ -11,7 +11,7 @@
     <div class="col-md-12">
       <div class="panel panel-info">
         <div class="panel-heading">
-          <span class="pull-left"><h3 class="panel-title">Apply Payments</h3></span>
+          <span class="pull-left"><h3 class="panel-title">Apply Payments</h3><br><button id="hide_fully_paid" class="btn btn-primary btn-sm">Hide Fully Paid</button></span>
             <span class="pull-right text-right">
               Payor: {{ $who_paid }} <br />
               Payment Amount: $ <span id="span_total">{{ number_format($thisTransaction->total,2,'.','') }}</span><br />
@@ -85,8 +85,11 @@
             </tbody>
           </table>
           <div class="row">
-            <div class="col-md-10 col-md-offset-1">
-              {{ Form::button('<i class="fa fa-floppy-o"></i> Apply Payments', array('class'=>'btn btn-success btn-block', 'type'=>'submit' )) }}
+            <div class="col-md-6">
+              {!! Html::decode(link_to_route('patients.show', '<i class="fa fa-times"></i> &nbsp;&nbsp;Cancel', array($patient->id), array('class'=>'btn btn-danger btn-block'))) !!}
+            </div>
+            <div class="col-md-6">
+              {{ Form::button('<i class="fa fa-floppy-o"></i> Apply Payments', array('class'=>'btn btn-success btn-block', 'type'=>'submit' )) }}              
               {!! Form::close() !!}
             </div>
           </div>
@@ -107,42 +110,52 @@
       $('#span_unapplied_amount').removeClass('has_error');
       $('#span_applied_amount').removeClass('has_error');
     }
+
+    $('input').on('focusin', function(){
+        if($(this).val() == '')
+        console.log("Saving value " + $(this).val());
+        $(this).data('val', $(this).val());
+    });
+
+
+    $('input').on('change', function(){
+        var prev = $(this).data('val');
+        var current = $(this).val();
+        console.log ('prev: ' + prev);
+        console.log('current: ' + current);
+
+        var new_unapplied_amount = parseFloat($('#span_unapplied_amount').text()) - parseFloat(prev) + parseFloat(current);
+        var new_unapplied_amount = parseFloat(new_unapplied_amount).toFixed(2);
+        var new_applied_amount = parseFloat($('#span_total').text()).toFixed(2) - parseFloat(new_unapplied_amount).toFixed(2);
+        var new_applied_amount = parseFloat(new_applied_amount).toFixed(2);
+
+        if(new_unapplied_amount > 0) {
+          $('#span_unapplied_amount').text(new_unapplied_amount + ' (OVER)').addClass('has_error').removeClass('has_success');
+          $('#span_applied_amount').text(new_applied_amount).addClass('has_error').removeClass('has_success');
+          //$('#amount_to_apply').addClass('error');
+        }
+        if(new_unapplied_amount == 0) {
+          $('#span_unapplied_amount').text(new_unapplied_amount).addClass('has_success').removeClass('has_error');
+          $('#span_applied_amount').text(new_applied_amount).addClass('has_success').removeClass('has_error');
+        }
+        else {
+          $('#span_unapplied_amount').text(new_unapplied_amount).removeClass('has_error').removeClass('has_success');
+          $('#span_applied_amount').text(new_applied_amount).removeClass('has_error').removeClass('has_success');
+        }
+    });
+
+    $('#hide_fully_paid').click(function() {
+      $('.fully_paid').toggleClass('hidden');
+      if($(this).text() == 'Hide Fully Paid') {
+        $(this).text('Show Fully Paid').addClass('btn-primary');
+      } else { $(this).text('Hide Fully Paid').removeClass('btn-primary'); }
+    });
+
+
   });
 
-  $('input').on('focusin', function(){
-      if($(this).val() == '')
-      console.log("Saving value " + $(this).val());
-      $(this).data('val', $(this).val());
-  });
 
 
-  $('input').on('change', function(){
-      var prev = $(this).data('val');
-      var current = $(this).val();
-      console.log ('prev: ' + prev);
-      console.log('current: ' + current);
-
-      var new_unapplied_amount = parseFloat($('#span_unapplied_amount').text()) - parseFloat(prev) + parseFloat(current);
-      var new_unapplied_amount = parseFloat(new_unapplied_amount).toFixed(2);
-      var new_applied_amount = parseFloat($('#span_total').text()).toFixed(2) - parseFloat(new_unapplied_amount).toFixed(2);
-      var new_applied_amount = parseFloat(new_applied_amount).toFixed(2);
-
-      if(new_unapplied_amount > 0) {
-        $('#span_unapplied_amount').text(new_unapplied_amount + ' (OVER)').addClass('has_error').removeClass('has_success');
-        $('#span_applied_amount').text(new_applied_amount).addClass('has_error').removeClass('has_success');
-        //$('#amount_to_apply').addClass('error');
-      }
-      if(new_unapplied_amount == 0) {
-        $('#span_unapplied_amount').text(new_unapplied_amount).addClass('has_success').removeClass('has_error');
-        $('#span_applied_amount').text(new_applied_amount).addClass('has_success').removeClass('has_error');
-      }
-      else {
-        $('#span_unapplied_amount').text(new_unapplied_amount).removeClass('has_error').removeClass('has_success');
-        $('#span_applied_amount').text(new_applied_amount).removeClass('has_error').removeClass('has_success');
-      }
-
-
-  });
 </script>
 
 @endsection
