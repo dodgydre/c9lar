@@ -25,6 +25,7 @@ class CreateAppointmentsTable extends Migration
             $table->boolean('is_break');
             $table->uuid('uuid');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

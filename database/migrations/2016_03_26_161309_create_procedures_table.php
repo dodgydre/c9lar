@@ -21,6 +21,7 @@ class CreateProceduresTable extends Migration
             $table->boolean('taxable')->default(0);
             $table->boolean('inactive')->default(0);
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

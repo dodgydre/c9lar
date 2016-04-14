@@ -4,6 +4,12 @@
   <meta charset="UTF-8">
   <title>Statement</title>
   <link rel="stylesheet" href="css/statement2.css" media="all" />
+
+  <style>
+    .page-break {
+      page-break-after: always;
+    }
+  </style>
 </head>
 <body>
   <header class="clearfix">
@@ -63,6 +69,8 @@
           </tr>
         </thead>
         <tbody>
+          
+          
           @foreach($transactions as $transaction)
             <tr>
               <td class="date">{{ date('d/m/Y' ,strtotime($transaction->date_from)) }} </td>
@@ -115,22 +123,65 @@
       </table>
 
       <hr class="top_line"/>
+      <!--
+        <span class="release">Assign and Release:</span>I hereby authorize payment of medical benefits to this physician for the services described<br />
+        <span class="release"></span>above. I also authorize the release of any information necessary to process this claim.<br />
+        <br />
+        <br />
+        <br />
+        <table class="sig_table">
+          <tr>
+            <td class="sig_pat_text"> Patient Signature </td>
+            <td class="sig_line"> &nbsp; </td>
+            <td class="sig_date_text"> Date </td>
+            <td class="sig_date_line"> &nbsp; </td>
+          </tr>
+        </table>
+      -->
+      <div class="page-break"></div>
+      <header class="clearfix">
+    <div class="logo">
+      <img src="logo.jpg" />
+    </div>
+    <div class="address_block">
+    25 Allandale Road<br />
+    St. John's, NL, A1B 2Z6<br />
+    (709)-726-4343<br />
+    </div>
 
-      <span class="release">Assign and Release:</span>I hereby authorize payment of medical benefits to this physician for the services described<br />
-      <span class="release"></span>above. I also authorize the release of any information necessary to process this claim.<br />
-      <br />
-      <br />
-      <br />
-      <table class="sig_table">
-        <tr>
-          <td class="sig_pat_text"> Patient Signature </td>
-          <td class="sig_line"> &nbsp; </td>
-          <td class="sig_date_text"> Date </td>
-          <td class="sig_date_line"> &nbsp; </td>
-        </tr>
-      </table>
+    <hr class="top_line"/>
 
-      <!--<span class="release">Patient Signature</span><span class="signature_line"></span>Date:<span class="date_line"></span><br />-->
+    <table class="patient_instructions_table">
+      <tr>
+        <td class="patient">
+          Patient:<br />
+                  <br />
+                  <br />
+                  <br />
+                  <br />
+          Chart #:<br />
+        </td>
+        <td class="address">
+           {{ $patient->first_name }} {{ $patient->last_name }}<br />
+           {{ $patient->street1 }}<br />
+           {{ isset($patient->street2) ? $patient->street2 . '<br />' : '' }}
+           {{ isset($patient->city) ? $patient->city . ', ' : '' }} {{ isset($patient->province) ? $patient->province . ', ' : '' }} {{ $patient->postcode }}<br />
+           {{ $patient->country }}<br />
+           <br />
+           {{ $patient->chart_number }}
+        </td>
+        <td class="instructions">
+          <span>Instructions:</span><br />
+
+          Complete the patient information portion of your insurance<br />
+          claim form. Attach this bill, signed and dated and all other<br />
+          bills pertaining to this claim. If you have a deductible policy<br />
+          hold your claim forms until you have met your deductible<br />
+          Mail directly to your insurance carrier. <br /><br />
+        </td>
+      </tr>
+    </table>
+    </header>
       <br /><br />
     </main>
 

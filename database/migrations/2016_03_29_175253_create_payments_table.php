@@ -20,6 +20,7 @@ class CreatePaymentsTable extends Migration
             $table->char('who_paid',1);      // G/1/2/3
             $table->integer('deposit_id')->unsigned();   // fk from Deposits
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

@@ -25,6 +25,7 @@ class CreateInsurersTable extends Migration
             $table->string('phone')->nullable();
             $table->string('fax')->nullable();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

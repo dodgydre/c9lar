@@ -29,6 +29,7 @@ class CreateDepositsTable extends Migration
             $table->string('payment_code', 8); // from Procedures
             $table->text('comments')->nullable();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

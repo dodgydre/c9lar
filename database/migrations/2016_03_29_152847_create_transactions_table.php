@@ -33,6 +33,7 @@ class CreateTransactionsTable extends Migration
             $table->decimal('unapplied_amount', 7, 2)->default(0.00);
             //$table->integer('deposit_id')->unsigned()->nullable();  // Do we need this now?
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
