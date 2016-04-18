@@ -39,6 +39,7 @@ Route::group(['middleware' => 'web'], function () {
     Route::auth();
 
     Route::get('/admin/calendar', 'AdminController@getCalendarID');
+    Route::get('/admin/calendar/add', 'AdminController@addCalendarEvent');
 
     Route::get('/calendar/show', 'AppointmentController@showCalendar');
     Route::post('/calendar/updateEvent', 'AppointmentController@updateEvent');

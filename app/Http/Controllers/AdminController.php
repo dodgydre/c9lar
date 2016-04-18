@@ -57,9 +57,33 @@ class AdminController extends Controller
   {
     $calendar = new GoogleCalendar;
     $calendarId = 'pn0qnhkiai0calfpf7b1lvojfg@group.calendar.google.com';
-    $result = $calendar->getEvents($calendarId);
-    $result = $calendar->get($calendarId);
-    $result = $calendar->addEvent($calendarId);
+    //$nextSyncToken = "CIDcx-GamMwCEIDcx-GamMwCGAQ=";
+    $nextSyncToken = '';
+    $params = ['syncToken'=>$nextSyncToken];
+    
+    $result = $calendar->getEvents($calendarId, $params);
+    dd($result);
+    //$result = $calendar->get($calendarId);
+    //$result = $this->addEvent($calendarId);
+  }
+
+  public function addCalendarEvent() {
+   $calendar = new GoogleCalendar;
+   $calendarId = 'pn0qnhkiai0calfpf7b1lvojfg@group.calendar.google.com';
+   $event = new \Google_Service_Calendar_Event(array(
+      'summary' => 'Janice Grace',
+      'description' => '7642624',
+      'start' => array(
+        'dateTime' => '2016-04-18T12:00:00-02:30',
+        'timeZone' => 'Canada/Newfoundland',
+      ),
+      'end' => array(
+        'dateTime' => '2016-04-18T13:00:00-02:30',
+        'timeZone' => 'Canada/Newfoundland',
+      ),
+    ));
+    $result = $calendar->addEvent($calendarId, $event);
+    dd($result);  
   }
 
 }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 
+use App\Services\GoogleCalendar;
 use App\Http\Requests;
 use Input;
 use App\Appointment;
@@ -25,9 +26,48 @@ class AppointmentController extends Controller
       );
     }
 
+    public function getCalendarID()
+      {
+        $calendar = new GoogleCalendar;
+        $calendarId = 'pn0qnhkiai0calfpf7b1lvojfg@group.calendar.google.com';
+        //$nextSyncToken = "CIDcx-GamMwCEIDcx-GamMwCGAQ=";
+        $nextSyncToken = '';
+        $params = ['syncToken'=>$nextSyncToken];
+        
+        $result = $calendar->getEvents($calendarId, $params);
+        dd($result);
+        //$result = $calendar->get($calendarId);
+        //$result = $this->addEvent($calendarId);
+      }
+
+
     public function showCalendar() {
       $events = [];
 
+      $calendar = new GoogleCalendar;
+      $calendarId = 'pn0qnhkiai0calfpf7b1lvojfg@group.calendar.google.com';
+      $nextSyncToken = '';
+      $params = ['syncToken'=>$nextSyncToken];
+      
+      $results = $calendar->getEvents($calendarId, $params);
+      //dd($results);
+      foreach($results as $event) {
+        
+        if($event->status != "cancelled") {
+          //echo $event->start->dateTime . "<br>";
+          $events[] = \Calendar::event(
+            $event->summary,
+            false,
+            $event->start->dateTime,
+            $event->end->dateTime,
+            $event->id,
+            [
+              'description' => $event->description,
+            ]
+          );
+        }
+          
+      }
       /*$events[] = \Calendar::event(
         'Event One',
         false,
@@ -39,7 +79,7 @@ class AppointmentController extends Controller
         ]
      );*/
 
-     $eloquentEvent = Appointment::all();
+     /*$eloquentEvent = Appointment::all();
      foreach($eloquentEvent as $event) {
        $events[] = \Calendar::event(
         $event->title,
@@ -51,7 +91,7 @@ class AppointmentController extends Controller
           'provider' => $event->provider,
         ]
       );
-     }
+     }*/
 
      $calendar = \Calendar::setId('pbcc_calendar')
       ->addEvents($events)
@@ -69,9 +109,14 @@ class AppointmentController extends Controller
           'allDaySlot' => false,
           'minTime' => '08:00:00',
           'maxTime' => '20:00:00',
+          'header' => [
+            'left' => 'prev,next today',
+            'center' => 'title',
+            'right' => 'agendaDay, basicDay, agendaWeek, month'
+            ],
         ])->setCallbacks([
+          // UPDATE EXISTING EVENT
           'eventDrop' => "function(calEvent, jsEvent, view) {
-            //alert('/move/event/' + calEvent.id + '/' + calEvent.start + '/' + calEvent.end);
             var url = '/calendar/updateEvent';
             var post = {};
             post.id = calEvent.id;
@@ -94,7 +139,7 @@ class AppointmentController extends Controller
             return false;
             // change the border color just for fun
             //$(this).css('border-color', 'red');
-          }",
+          }",  // UPDATE EXISTING EVENT
           'eventResize' => "function(calEvent, jsEvent, view) {
             //alert('/move/event/' + calEvent.id + '/' + calEvent.start + '/' + calEvent.end);
             var url = '/calendar/updateEvent';
@@ -116,7 +161,7 @@ class AppointmentController extends Controller
               }
             });
             return false;
-          }",
+          }",  // CREATE NEW EVENT
           'select' => "function(start, end, allDay) {
             var title = prompt('Event Title:');
             if(title) {
@@ -134,8 +179,10 @@ class AppointmentController extends Controller
               var url = '/calendar/createEvent';
               var post = {};
 
-              post.start = start.format('YYYY-MM-DD HH:mm:ss');
-              post.end = end.format('YYYY-MM-DD HH:mm:ss');
+              //post.start = start.format('YYYY-MM-DD HH:mm:ss');
+              //post.end = end.format('YYYY-MM-DD HH:mm:ss');
+              post.start = start.toISOString();
+              post.end = end.toISOString();
               post.title = title;
               post.allDay = ! start.hasTime();
               $.ajax({
@@ -153,7 +200,7 @@ class AppointmentController extends Controller
             }
             $('#calendar-pbcc_calendar').fullCalendar('unselect');
 
-          }",
+          }",  // Shrink the widths to 33%
           'eventRender' => "function(event, element) {
             console.log(event.id);
             if(event.provider == 'JEG') {
@@ -167,7 +214,7 @@ class AppointmentController extends Controller
           }",
           'eventAfterRender' => "function(event, element, view) {
             var width = $('.fc-widget-content').width();
-            var left = elemet.left();
+            var left = element.position().left;
             width = width/3;
             $(element).css('width', width + 'px');
           }"
@@ -179,6 +226,7 @@ class AppointmentController extends Controller
 
     public function updateEvent(Request $request) {
       $data = $request->all();
+      
       //dd($data);
       if($request->ajax())
       {
@@ -193,8 +241,27 @@ class AppointmentController extends Controller
       }//2016-04-15T09:00:00-02:30
     }
 
+    // TODO: Check this at home... CORS request from here.
     public function createEvent(Request $request) {
       $data = $request->all();
+      $calendar = new GoogleCalendar;
+      $calendarId = 'pn0qnhkiai0calfpf7b1lvojfg@group.calendar.google.com';
+      
+      $event = new \Google_Service_Calendar_Event(array(
+        'summary' => $data['title'],
+        //'description' => '7642624',
+        'start' => array(
+          'dateTime' => $data['start'],
+          'timeZone' => 'Canada/Newfoundland',
+        ),
+        'end' => array(
+          'dateTime' => $data['end'],
+          'timeZone' => 'Canada/Newfoundland',
+        ),
+      ));
+      $result = $calendar->addEvent($calendarId, $event);
+      $uuid = $result->id;
+      
       //dd($data);
       if($request->ajax())
       {
@@ -203,10 +270,10 @@ class AppointmentController extends Controller
         $appointment->end = $data['end'];
         $appointment->title = $data['title'];
         $appointment->allDay = $data['allDay'];
+        $appointment->uuid = $uuid;
         $appointment->save();
         $string = "Appointment #" . $appointment->id . " created - Start: " . $appointment->start . " - End " . $appointment->end;
         return $string;
       }//2016-04-15T09:00:00-02:30
     }
-
 }

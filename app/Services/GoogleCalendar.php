@@ -40,28 +40,18 @@ class GoogleCalendar {
         Cache::forever('service_token', $this->client->getAccessToken());
     }
 
-    public function addEvent($calendarId)
+    public function addEvent($calendarId, $event)
     {
-      $event = new \Google_Service_Calendar_Event(array(
-        'summary' => 'Google I/O 2015',
-        'location' => 'A1E 1K9',
-        'description' => 'Sample',
-        'start' => array(
-          'dateTime' => '2016-04-14T10:00:00-02:30',
-          'timeZone' => 'Canada/Newfoundland',
-        ),
-        'end' => array(
-          'dateTime' => '2016-04-14T11:00:00-02:30',
-          'timeZone' => 'Canada/Newfoundland',
-        ),
-      ));
-      $event = $this->service->events->insert($calendarId, $event);
-      dd($event);
+      $result = $this->service->events->insert($calendarId, $event);
+      dd($result);
     }
 
-    public function getEvents($calendarId)
+    public function getEvents($calendarId, $params)
     {
-      $events = $this->service->events->listEvents($calendarId);
+      $events = $this->service->events->listEvents($calendarId, $params);
+      return $events;
+      echo $events->nextSyncToken . '<br /><br />';
+      //dd($events);      
       foreach($events as $event) {
         echo "Description: " . $event->description . '<br />';
         echo "Start: " . $event->start->dateTime . '<br />';
