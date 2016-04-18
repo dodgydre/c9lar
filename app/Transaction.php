@@ -3,9 +3,29 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use OwenIt\Auditing\AuditingTrait;
 
 class Transaction extends Model
 {
+    use AuditingTrait;
+
+    /**
+     * Log custom message
+     */
+    public static $logCustomMessage = '{user.name|Anonymous} {type} a transaction {elapsed_time}';
+    /**
+     * Log custom fields message
+     */
+    /*public static $logCustomFields = [
+        'name'  => 'The name was defined as {new.name}',
+        'owner_id' => [
+            'updated' => '{||ownerName} owns the team',
+            'created' => '{owner.owner.name} was defined as owner'
+        ],
+    ];*/
+
+
+
     protected $fillable = [
       'g_amount_paid',
       'i1_amount_paid',

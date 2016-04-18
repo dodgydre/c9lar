@@ -131,225 +131,226 @@
       </div>
     </div>
 
-<!-- SOME INFO  -->
-  <div class="col-md-4">
-    <div class="panel panel-default">
-      <div class="panel-heading">
-        <h3 class="panel-title">Info</h3>
-      </div>
-      <div class="panel-body">
-        <dl>
-          <dt>Last Payment:</dt>
-          <dd>{{ $patient->date_of_last_pmt or ''}} ${{$patient->last_pmt}}</dd>
-          <dt>Remaining Balance:</dt>
-          <dd><span class="{{ ($patient->remaining_balance > 0) ? 'has_error' : 'has_success' }}">${{ $patient->remaining_balance }}</span></dd>
-        </dl>
-        <hr />
-        <div class="row">
-          <div class="col-sm-6">
-            <a href="{{ route('patients.testStatement', $patient->id) }}" class="btn btn-block btn-primary" target="_blank">Print Statement</a>
-          </div>
+    <!-- SOME INFO  -->
+    <div class="col-md-4">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h3 class="panel-title">Info</h3>
         </div>
+        <div class="panel-body">
+          <dl>
+            <dt>Last Payment:</dt>
+            <dd>{{ $patient->date_of_last_pmt or ''}} ${{$patient->last_pmt}}</dd>
+            <dt>Remaining Balance:</dt>
+            <dd><span class="{{ ($patient->remaining_balance > 0) ? 'has_error' : 'has_success' }}">${{ $patient->remaining_balance }}</span></dd>
+          </dl>
+          <hr />
+          <div class="row">
+            <div class="col-sm-6">
+              <a href="{{ route('patients.testStatement', $patient->id) }}" class="btn btn-block btn-primary" target="_blank">Print Statement</a>
+            </div>
+          </div>
 
-        <div class="row">
-          <div class="col-sm-6">
-            <a href="{{ route('patients.edit', $patient->id) }}" class="btn btn-block btn-primary"><i class="fa fa-pencil-square-o"></i> Edit</a>
-          </div>
-          <div class="col-sm-6">
-            <form method='POST' action="{{ route('patients.destroy', [$patient->id]) }}">
-              {!! csrf_field() !!}
-              {!! method_field('DELETE') !!}
-              @if(Entrust::hasRole('admin'))
-                <button class="btn btn-block btn-danger" onclick="return confirm('Are you sure you want to delete this item?');"><i class="fa fa-trash"></i> Delete</button>
-              @endif
-            </form>
+          <div class="row">
+            <div class="col-sm-6">
+              <a href="{{ route('patients.edit', $patient->id) }}" class="btn btn-block btn-primary"><i class="fa fa-pencil-square-o"></i> Edit</a>
+            </div>
+            <div class="col-sm-6">
+              <form method='POST' action="{{ route('patients.destroy', [$patient->id]) }}">
+                {!! csrf_field() !!}
+                {!! method_field('DELETE') !!}
+                @if(Entrust::hasRole('admin'))
+                  <button class="btn btn-block btn-danger" onclick="return confirm('Are you sure you want to delete this item?');"><i class="fa fa-trash"></i> Delete</button>
+                @endif
+              </form>
 
+            </div>
+            <div class="col-sm-12">
+              <a href="{{route('patients.index')}}" class="btn btn-default btn-block btn-h1-spacing"><i class="fa fa-arrow-left"></i> Show All Patients</a>
+            </div>
           </div>
-          <div class="col-sm-12">
-            <a href="{{route('patients.index')}}" class="btn btn-default btn-block btn-h1-spacing"><i class="fa fa-arrow-left"></i> Show All Patients</a>
-          </div>
+
+        </div> <!-- close .panel-body -->
+
+      </div> <!-- close .panel -->
+    </div> <!-- close .col-md-4 -->
+  </div><!-- close .row -->
+
+  <!-- Charges -->
+  <!-- TODO: Colors: No Payment (warning), Partially Paid (info), Overpaid (danger), Paid (white) -->
+  <div class="row">
+    <div class="col-md-12">
+      <div class="panel panel-info">
+        <div class="panel-heading">
+          <h3 class="panel-title pull-left">Charges</h3>
+          <span class="pull-right"><button id="hide_fully_paid" class="btn btn-sm btn-default">Hide Fully Paid</button></span>
+          <div class="clearfix"> </div>
         </div>
-
-    </div>
-
-  </div> <!-- close .col-md-4 -->
-</div> <!-- close .row -->
-
-<!-- Charges -->
-<!-- TODO: Colors: No Payment (warning), Partially Paid (info), Overpaid (danger), Paid (white) -->
-<div class="row">
-  <div class="col-md-12">
-    <div class="panel panel-info">
-      <div class="panel-heading">
-        <h3 class="panel-title pull-left">Charges</h3>
-        <span class="pull-right"><button id="hide_fully_paid" class="btn btn-sm btn-default">Hide Fully Paid</button></span>
-        <div class="clearfix"> </div>
-      </div>
-      <div class="panel-body charges-panel">
-        <table class="table table-striped">
-          <thead>
-            <tr>
-              <th style='width: 20%'> Date </th>
-              <th style='width: 10%'> Procedure Code </th>
-              <th style='width: 20%'> Procedure Description </th>
-              <th style='width: 15%'> Provider </th>
-              <th style='width: 10%'> Units </th>
-              <th style='width: 10%'> Cost / Unit </th>
-              <th style='width: 10%'> Total Amount </th>
-              <th style='width: 10%'> Unapplied </th>
-              <th style='width: 5%'> </th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              {!! Form::open(array('route' => 'patients.addCharge')) !!}
-              {{ Form::hidden('patient_id', $patient->id) }}
-              <td>
-                <div class="input-group date" data-provide="datepicker">
-                  <input type="text" class="form-control" id="charge_date_from" name="date_from" value="{{ \Carbon\Carbon::now()->format('d/m/Y') }}"/>
-                  <div class="input-group-addon">
-                    <span class="glyphicon glyphicon-calendar"></span>
-                  </div>
-                </div>
-              <td>
-                <input type="hidden" class="form-control" name="procedure_code" id="charge_procedure_code_hid" />
-                <input type="text" class="form-control" disabled id="charge_procedure_code_dis" />
-              </td>
-              <td> <select class="form-control" name="procedure_description" id="charge_procedure_description">
-                <option disabled selected value> -- Select Procedure --</option>
-                @foreach($procedures as $procedure)
-                  <option data-amount="{{$procedure->amount}}" value="{{$procedure->code}}">{{$procedure->description}}</option>
-                @endforeach
-                </select>
-              </td>
-              <td> {{ Form::select('attending_provider', array('JEG' => 'Dr. Grace', 'CH'=>'C. Hounsell'), null, array('class'=>'form-control')) }} </td>
-              <td> {{ Form::text('units', 1, array('class'=>'form-control', 'id'=>'charge_units')) }} </td>
-              <td> {{ Form::text('amount', null, array('class'=>'form-control', 'id'=>'charge_amount')) }} </td>
-              <td>
-                <input type="hidden" name="total" id="charge_total_hid" />
-                <input type="text" id="charge_total_dis" class="form-control" disabled />
-              </td>
-              <td> </td>
-              <td> {{ Form::button('<i class="fa fa-plus"></i>', array('class'=>'btn btn-success btn-sm', 'type'=>'submit' )) }} </td>
-              {!! Form::close() !!}
-            </tr>
-            @foreach($patient->charges as $charge)
-              <tr class="{{ $charge->paidClass() }}">
-                <td> {{ date('d/m/Y' ,strtotime($charge->date_from)) }} </td>
-                <td> {{ $charge->procedure_code }} </td>
-                <td> {{ $charge->procedure_description }} </td>
-                <td> {{ $charge->attending_provider }} </td>
-                <td> {{ $charge->units }} </td>
-                <td> {{ $charge->amount }} </td>
-                <td> {{ $charge->total }} </td>
-                <td> {{ $charge->unapplied() }} </td>
-                <td> </td>
+        <div class="panel-body charges-panel">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th style='width: 20%'> Date </th>
+                <th style='width: 10%'> Procedure Code </th>
+                <th style='width: 20%'> Procedure Description </th>
+                <th style='width: 15%'> Provider </th>
+                <th style='width: 10%'> Units </th>
+                <th style='width: 10%'> Cost / Unit </th>
+                <th style='width: 10%'> Total Amount </th>
+                <th style='width: 10%'> Unapplied </th>
+                <th style='width: 5%'> </th>
               </tr>
-            @endforeach
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Payments -->
-<!-- TODO: Color Coding - Not Applied (warning), Partially Applied (info), Over-Applied (danger), Fully Applied (white) -->
-<div class="row">
-  <div class="col-md-12">
-    <div class="panel panel-info">
-      <div class="panel-heading">
-
-        <h3 class="panel-title pull-left">Payments</h3>
-        <span class="pull-right"><button id="hide_fully_applied" class="btn btn-sm btn-default">Hide Fully Applied</button></span>
-        <div class="clearfix"> </div>
-      </div>
-      <div class="panel-body payments-panel">
-        <table class="table table-striped">
-          <thead>
-            <tr>
-              <th style='width: 20%'> Date </th>
-              <th style='width: 10%'> Pay/Adj Code </th>
-              <th style='width: 20%'> Payment Description </th>
-              <th style='width: 15%'> Who Paid </th>
-              <th style='width: 10%'> Provider </th>
-              <th style='width: 10%'> Total </th>
-              <th style='width: 10%'> Check # </th>
-              <th style='width: 10%'> Unapplied </th>
-              <th style='width: 5%'> </th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              {!! Form::open(array('route' => 'patients.addPayment')) !!}
-              {{ Form::hidden('patient_id', $patient->id) }}
-              <td>
-                <div class="input-group date" data-provide="datepicker">
-                  <input type="text" class="form-control" id="payment_date_from" name="date_from" value="{{ \Carbon\Carbon::now()->format('d/m/Y') }}"/>
-                  <div class="input-group-addon">
-                    <span class="glyphicon glyphicon-calendar"></span>
-                  </div>
-                </div>
-              <td>
-                <input type="hidden" class="form-control" name="payment_code" id="payment_procedure_code_hid" />
-                <input type="text" class="form-control" disabled id="payment_procedure_code_dis" />
-              </td>
-              <td> <select class="form-control" name="payment_description" id="payment_procedure_description">
-                <option disabled selected value> -- Select Payment Type --</option>
-                @foreach($payments as $payment)
-                  <option data-amount="{{$payment->amount}}" value="{{$payment->code}}">{{$payment->description}}</option>
-                @endforeach
-                </select>
-              </td>
-              <td>
-                <select class="form-control" name="who_paid">
-                  <option value="G">Patient </option>
-                  @if(isset($patient->insurance1))
-                    <option value="1">{{$patient->insurance1->name}} </option>
-                  @endif
-                  @if(isset($patient->insurance2))
-                    <option value="2">{{$patient->insurance2->name}} </option>
-                  @endif
-                  @if(isset($patient->insurance3))
-                    <option value="3">{{$patient->insurance3->name}} </option>
-                  @endif
-
-                </select>
-              </td>
-              <td> {{ Form::select('attending_provider', array('JEG' => 'Dr. Grace', 'CH'=>'C. Hounsell'), null, array('class'=>'form-control')) }} </td>
-              <td> {{ Form::text('total', null, array('class'=>'form-control', 'id'=>'payment_total')) }} </td>
-              <td> </td>
-              <td> {{ '' /*Form::text('check', null, array('class'=>'form-control')) */}} </td>
-              <td> {{ Form::button('<i class="fa fa-plus"></i>', array('class'=>'btn btn-success btn-sm', 'type'=>'submit' )) }} </td>
-              {!! Form::close() !!}
-            </tr>
-            @foreach($patient->payments as $payment)
-              <tr class="{{ $payment->appliedClass() }}">
-                <td> {{ date('d/m/Y' ,strtotime($payment->date_from)) }} </td>
-                <td> {{ $payment->procedure_code }} </td>
-                <td> {{ $payment->procedure_description }} </td>
-                <td> {{ $payment->who_paid }} </td>
-                <td> {{ $payment->provider }} </td>
-                <td> {{ $payment->total }} </td>
-                <td> {{ $payment->deposit_id }} </td>
-                <td> {{ $payment->unapplied_amount }} </td>
+            </thead>
+            <tbody>
+              <tr>
+                {!! Form::open(array('route' => 'patients.addCharge')) !!}
+                {{ Form::hidden('patient_id', $patient->id) }}
                 <td>
-                  <a href="/patients/{{$patient->id}}/apply/{{$payment->id}}/from/{{$payment->who_paid}}"><button class="btn {{ ($payment->unapplied_amount == 0) ? 'btn-default' : 'btn-primary' }} btn-sm">Apply</button></a>
-                  @if($payment->unapplied_amount < 0)
-                    {{ Form::open(array('route' => 'patients.applyPaymentsToMostRecent')) }}
-                    {{ Form::hidden('patient_id', $patient->id) }}
-                    {{ Form::hidden('transaction_id', $payment->id) }}
-                    {{ Form::button('Apply to most recent', array('class' => 'btn btn-primary btn-sm', 'type'=>'submit')) }}
-                  @endif
+                  <div class="input-group date" data-provide="datepicker">
+                    <input type="text" class="form-control" id="charge_date_from" name="date_from" value="{{ \Carbon\Carbon::now()->format('d/m/Y') }}"/>
+                    <div class="input-group-addon">
+                      <span class="glyphicon glyphicon-calendar"></span>
+                    </div>
+                  </div>
+                <td>
+                  <input type="hidden" class="form-control" name="procedure_code" id="charge_procedure_code_hid" />
+                  <input type="text" class="form-control" disabled id="charge_procedure_code_dis" />
                 </td>
+                <td> <select class="form-control" name="procedure_description" id="charge_procedure_description">
+                  <option disabled selected value> -- Select Procedure --</option>
+                  @foreach($procedures as $procedure)
+                    <option data-amount="{{$procedure->amount}}" value="{{$procedure->code}}">{{$procedure->description}}</option>
+                  @endforeach
+                  </select>
+                </td>
+                <td> {{ Form::select('attending_provider', array('JEG' => 'Dr. Grace', 'CH'=>'C. Hounsell'), null, array('class'=>'form-control')) }} </td>
+                <td> {{ Form::text('units', 1, array('class'=>'form-control', 'id'=>'charge_units')) }} </td>
+                <td> {{ Form::text('amount', null, array('class'=>'form-control', 'id'=>'charge_amount')) }} </td>
+                <td>
+                  <input type="hidden" name="total" id="charge_total_hid" />
+                  <input type="text" id="charge_total_dis" class="form-control" disabled />
+                </td>
+                <td> </td>
+                <td> {{ Form::button('<i class="fa fa-plus"></i>', array('class'=>'btn btn-success btn-sm', 'type'=>'submit' )) }} </td>
+                {!! Form::close() !!}
               </tr>
-            @endforeach
-          </tbody>
-        </table>
+              @foreach($patient->charges as $charge)
+                <tr class="{{ $charge->paidClass() }}">
+                  <td> {{ date('d/m/Y' ,strtotime($charge->date_from)) }} </td>
+                  <td> {{ $charge->procedure_code }} </td>
+                  <td> {{ $charge->procedure_description }} </td>
+                  <td> {{ $charge->attending_provider }} </td>
+                  <td> {{ $charge->units }} </td>
+                  <td> {{ $charge->amount }} </td>
+                  <td> {{ $charge->total }} </td>
+                  <td> {{ $charge->unapplied() }} </td>
+                  <td> </td>
+                </tr>
+              @endforeach
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   </div>
-</div>
+
+  <!-- Payments -->
+  <!-- TODO: Color Coding - Not Applied (warning), Partially Applied (info), Over-Applied (danger), Fully Applied (white) -->
+  <div class="row">
+    <div class="col-md-12">
+      <div class="panel panel-info">
+        <div class="panel-heading">
+
+          <h3 class="panel-title pull-left">Payments</h3>
+          <span class="pull-right"><button id="hide_fully_applied" class="btn btn-sm btn-default">Hide Fully Applied</button></span>
+          <div class="clearfix"> </div>
+        </div>
+        <div class="panel-body payments-panel">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th style='width: 20%'> Date </th>
+                <th style='width: 10%'> Pay/Adj Code </th>
+                <th style='width: 20%'> Payment Description </th>
+                <th style='width: 15%'> Who Paid </th>
+                <th style='width: 10%'> Provider </th>
+                <th style='width: 10%'> Total </th>
+                <th style='width: 10%'> Check # </th>
+                <th style='width: 10%'> Unapplied </th>
+                <th style='width: 5%'> </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                {!! Form::open(array('route' => 'patients.addPayment')) !!}
+                {{ Form::hidden('patient_id', $patient->id) }}
+                <td>
+                  <div class="input-group date" data-provide="datepicker">
+                    <input type="text" class="form-control" id="payment_date_from" name="date_from" value="{{ \Carbon\Carbon::now()->format('d/m/Y') }}"/>
+                    <div class="input-group-addon">
+                      <span class="glyphicon glyphicon-calendar"></span>
+                    </div>
+                  </div>
+                <td>
+                  <input type="hidden" class="form-control" name="payment_code" id="payment_procedure_code_hid" />
+                  <input type="text" class="form-control" disabled id="payment_procedure_code_dis" />
+                </td>
+                <td> <select class="form-control" name="payment_description" id="payment_procedure_description">
+                  <option disabled selected value> -- Select Payment Type --</option>
+                  @foreach($payments as $payment)
+                    <option data-amount="{{$payment->amount}}" value="{{$payment->code}}">{{$payment->description}}</option>
+                  @endforeach
+                  </select>
+                </td>
+                <td>
+                  <select class="form-control" name="who_paid">
+                    <option value="G">Patient </option>
+                    @if(isset($patient->insurance1))
+                      <option value="1">{{$patient->insurance1->name}} </option>
+                    @endif
+                    @if(isset($patient->insurance2))
+                      <option value="2">{{$patient->insurance2->name}} </option>
+                    @endif
+                    @if(isset($patient->insurance3))
+                      <option value="3">{{$patient->insurance3->name}} </option>
+                    @endif
+
+                  </select>
+                </td>
+                <td> {{ Form::select('attending_provider', array('JEG' => 'Dr. Grace', 'CH'=>'C. Hounsell'), null, array('class'=>'form-control')) }} </td>
+                <td> {{ Form::text('total', null, array('class'=>'form-control', 'id'=>'payment_total')) }} </td>
+                <td> </td>
+                <td> {{ '' /*Form::text('check', null, array('class'=>'form-control')) */}} </td>
+                <td> {{ Form::button('<i class="fa fa-plus"></i>', array('class'=>'btn btn-success btn-sm', 'type'=>'submit' )) }} </td>
+                {!! Form::close() !!}
+              </tr>
+              @foreach($patient->payments as $payment)
+                <tr class="{{ $payment->appliedClass() }}">
+                  <td> {{ date('d/m/Y' ,strtotime($payment->date_from)) }} </td>
+                  <td> {{ $payment->procedure_code }} </td>
+                  <td> {{ $payment->procedure_description }} </td>
+                  <td> {{ $payment->who_paid }} </td>
+                  <td> {{ $payment->provider }} </td>
+                  <td> {{ $payment->total }} </td>
+                  <td> {{ $payment->deposit_id }} </td>
+                  <td> {{ $payment->unapplied_amount }} </td>
+                  <td>
+                    <a href="/patients/{{$patient->id}}/apply/{{$payment->id}}/from/{{$payment->who_paid}}"><button class="btn {{ ($payment->unapplied_amount == 0) ? 'btn-default' : 'btn-primary' }} btn-sm">Apply</button></a>
+                    @if($payment->unapplied_amount < 0)
+                      {{ Form::open(array('route' => 'patients.applyPaymentsToMostRecent')) }}
+                      {{ Form::hidden('patient_id', $patient->id) }}
+                      {{ Form::hidden('transaction_id', $payment->id) }}
+                      {{ Form::button('Apply to most recent', array('class' => 'btn btn-primary btn-sm', 'type'=>'submit')) }}
+                    @endif
+                  </td>
+                </tr>
+              @endforeach
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
 
 @endsection
 

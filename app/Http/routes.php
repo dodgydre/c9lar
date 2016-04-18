@@ -38,6 +38,17 @@ Route::get('testPrint', function() {
 Route::group(['middleware' => 'web'], function () {
     Route::auth();
 
+    Route::get('/admin/calendar', 'AdminController@getCalendarID');
+
+    Route::get('/calendar/show', 'AppointmentController@showCalendar');
+    Route::post('/calendar/updateEvent', 'AppointmentController@updateEvent');
+    Route::post('/calendar/createEvent', 'AppointmentController@createEvent');
+
+
+    Route::get('/admin/transactionLog/user/{id}', [
+      'as'  => 'admin.transactionLog',
+      'uses' => 'adminController@listTransactionLogs'
+    ]);
 
     // Apply a payment to the most recent charges until all empty.
     Route::post('/applyPaymentsToRecent', [

@@ -171,6 +171,11 @@ return [
         Barryvdh\Debugbar\ServiceProvider::class,
         /*  DomPDF */
         Barryvdh\DomPDF\ServiceProvider::class,
+        /* Laravel Auditing https://packagist.org/packages/owen-it/laravel-auditing */
+        OwenIt\Auditing\AuditingServiceProvider::class,
+        /* Laravel 5 Full Calendar Helper
+         * https://github.com/maddhatter/laravel-fullcalendar */
+        MaddHatter\LaravelFullcalendar\ServiceProvider::class,
     ],
 
     /*
@@ -228,6 +233,8 @@ return [
          'Html' => Collective\Html\HtmlFacade::class,
          /*  DomPDF  */
          'PDF' => Barryvdh\DomPDF\Facade::class,
+         /* https://github.com/maddhatter/laravel-fullcalendar */
+         'Calendar' => MaddHatter\LaravelFullcalendar\Facades\Calendar::class,
     ],
 
 ];

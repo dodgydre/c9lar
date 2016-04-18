@@ -3,9 +3,13 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use OwenIt\Auditing\Log;
+
+use App\Services\GoogleCalendar;
 
 use App\Http\Requests;
 use App\Patient;
+use App\Transaction;
 
 class AdminController extends Controller
 {
@@ -40,6 +44,22 @@ class AdminController extends Controller
       $patient->remaining_balance = $remaining;
       $patient->save();
     }
+  }
+
+  public function listTransactionLogs($id)
+  {
+    //return $id;
+    $logs = Log::get();
+    return view('auditing', compact('logs'));
+  }
+
+  public function getCalendarID()
+  {
+    $calendar = new GoogleCalendar;
+    $calendarId = 'pn0qnhkiai0calfpf7b1lvojfg@group.calendar.google.com';
+    $result = $calendar->getEvents($calendarId);
+    $result = $calendar->get($calendarId);
+    $result = $calendar->addEvent($calendarId);
   }
 
 }

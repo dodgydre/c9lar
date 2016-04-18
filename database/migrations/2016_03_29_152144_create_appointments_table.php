@@ -14,12 +14,14 @@ class CreateAppointmentsTable extends Migration
     {
         Schema::create('appointments', function (Blueprint $table) {
             $table->increments('id');
-            $table->date('date');
-            $table->time('start_time');
+            $table->string('title');
+            $table->boolean('allDay')->default(0);
+            $table->timestamp('start');
+            $table->timestamp('end');
             $table->string('provider',3);
             $table->integer('patient_id'); // foreign key to patients table
             $table->string('chart_number',8);
-            $table->string('name', 50);
+            $table->string('name', 50);  // patient name
             $table->string('phone1',15);
             $table->string('color', 10);
             $table->boolean('is_break');
