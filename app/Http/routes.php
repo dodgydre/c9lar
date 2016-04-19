@@ -36,58 +36,104 @@ Route::get('testPrint', function() {
 
 
 Route::group(['middleware' => 'web'], function () {
+    
+    // Auth routes login, logout, register, password reset 
     Route::auth();
 
-    Route::get('/admin/calendar', 'AdminController@getCalendarID');
-    Route::get('/admin/calendar/add', 'AdminController@addCalendarEvent');
-
+    
+    // Calendar Routes  (TODO: create and update events should become ajax routes maybe?)
     Route::get('/calendar/{provider_id}/show', 'AppointmentController@showCalendar');
     Route::post('/calendar/{provider_id}/updateEvent', 'AppointmentController@updateEvent');
     Route::post('/calendar/{provider_id}/createEvent', 'AppointmentController@createEvent');
 
 
-    Route::get('/admin/transactionLog/user/{id}', [
-      'as'  => 'admin.transactionLog',
-      'uses' => 'adminController@listTransactionLogs'
-    ]);
 
-    // Apply a payment to the most recent charges until all empty.
-    Route::post('/applyPaymentsToRecent', [
-      'as' => 'patients.applyPaymentsToMostRecent',
-      'uses' => 'PatientController@applyPaymentsToMostRecent'
-    ]);
-
-
+    // Generate a test PDF statement (TODO: add in options for start/end/etc.)
     Route::get('/patients/{id}/testStatement', [
         'as' => 'patients.testStatement',
         'uses' => 'PatientController@generateStatement'
         ]);
 
-    Route::get('/splash', function () {
-        return view('welcome');
-    });
 
     Route::get('/', 'HomeController@index');
     Route::get('/home', 'HomeController@index');
 
-    Route::resource('tasks', 'TaskController');
-    Route::post('/ajaxTaskStatus', 'TaskController@changeStatus');
-
     // EmployeeController Resource
     Route::resource('employees', 'EmployeeController');
 
-    // ProcedureController Resource - Good
+    // ProcedureController Resource
     Route::resource('procedures', 'ProcedureController');
-    // InsurerController Resource - Good
+    // InsurerController Resource
     Route::resource('insurers', 'InsurerController');
 
     // Additional route for patient using {chart_number} instead of {id}
-    Route::get('patients/{chart_number}', 'PatientController@showChartNum')
-      ->where('chart_number', '[A-Z]{5}[0-9]{3}');
-    //Route::get('patients/{chart_number}/edit', 'PatientController@editChartNum')
-    //  ->where('chart_number', '[A-Z]{5}[0-9]{3}');
+    Route::get('patients/{chart_number}', 'PatientController@showChartNum')->where('chart_number', '[A-Z]{5}[0-9]{3}');
+
     // PatientController Resource - Good
     Route::resource('patients', 'PatientController');
+    // Assign insurer to a patient - (done through AJAX)
+    Route::post('/patients/assignInsurer', ['as' => 'patients.assignInsurer', 'uses' => 'PatientController@assignInsurer']);
+
+    // Add Charge and Payment to patient.  patient_id is in the $request variable
+    Route::post('/patients/addCharge', ['as' => 'patients.addCharge', 'uses' => 'PatientController@addCharge']);
+    Route::post('/patients/addPayment', ['as' => 'patients.addPayment', 'uses' => 'PatientController@addPayment']);
+
+    // Apply a payment to {patient} by {payor}  (FORM)
+    Route::get('/patients/{id}/apply/{transaction}/from/{payor}', ['as' => 'patients.applyPaymentForm', 'uses' => 'PatientController@applyPaymentForm']);
+    // apple a payment (POST)
+    Route::post('/patients/applyPayment', ['as' => 'patients.applyPayment','uses' => 'PatientController@applyPayment']);
+
+    // Apply a payment to the most recent charges until all empty.
+    Route::post('/applyPaymentsToRecent', ['as' => 'patients.applyPaymentsToMostRecent', 'uses' => 'PatientController@applyPaymentsToMostRecent']);
+
+
+
+    // TASK LIST ROUTES
+    Route::resource('tasks', 'TaskController');
+    Route::post('/ajaxTaskStatus', 'TaskController@changeStatus');
+
+
+    // Admin group (TODO: check how to name the routes in a prefix group?)
+    // put these in a hasRole('admin') middleware through Entrust
+    /*Route::group(['prefix' => 'admin'], function () {
+        Route::get('users', function ()    {
+            // Matches The "/admin/users" URL
+        });
+    });*/
+    Route::get('/admin/checkBalances', [
+      'as'   => 'admin.checkBalances',
+      'uses' => 'AdminController@tidyUpPatientRemainingBalance'
+    ]);
+    // Calendar routes  (TODO: TESTERS... remove these)
+    Route::get('/admin/calendar', 'AdminController@getCalendarID');
+    Route::get('/admin/calendar/add', 'AdminController@addCalendarEvent');
+    // View transaction logs (TODO: Generate similar routes for other logs.  Add logs elsewhere)
+    Route::get('/admin/transactionLog/user/{id}', [
+      'as'  => 'admin.transactionLog',
+      'uses' => 'adminController@listTransactionLogs'
+    ]);
+
+
+    
+
+    // test  (TODO: This was for testing hasRole.  Can remove)
+    Route::get('/tester', function() {
+       return view('tester');
+    });
+    Route::get('/admin', function() {
+           if(!empty(Auth::user()) && Auth::user()->hasRole('admin')) {
+                return view('tester');
+           }
+           else {
+               return view('welcome');
+           }
+    });
+
+
+    // TODO: used?
+    Route::get('/splash', function () {
+        return view('welcome');
+    });
 
     // List all patient transactions
     Route::get('/patients/{id}/transactions', function($id) {
@@ -99,6 +145,7 @@ Route::group(['middleware' => 'web'], function () {
        return 'end';
     });
 
+    // TODO:  USED?
     // List all patient CHARGES (+ve amount)
     Route::get('/patients/{id}/charges', function($id) {
         $patient = Patient::find($id);
@@ -118,50 +165,5 @@ Route::group(['middleware' => 'web'], function () {
        return 'end';
     });
 
-    // Add Charge and Payment to patient.  patient_id is in the $request variable
-    Route::post('/patients/addCharge', [
-        'as' => 'patients.addCharge',
-      'uses' => 'PatientController@addCharge'
-    ]);
-    Route::post('/patients/addPayment', [
-        'as' => 'patients.addPayment',
-      'uses' => 'PatientController@addPayment'
-    ]);
-
-    // Apply a payment to {patient} by {payor}
-    Route::get('/patients/{id}/apply/{transaction}/from/{payor}', [
-        'as' => 'patients.applyPaymentForm',
-      'uses' => 'PatientController@applyPaymentForm'
-    ]);
-    Route::post('/patients/applyPayment', [
-        'as' => 'patients.applyPayment',
-      'uses' => 'PatientController@applyPayment'
-    ]);
-
-    Route::post('/patients/assignInsurer', [
-        'as' => 'patients.assignInsurer',
-      'uses' => 'PatientController@assignInsurer'
-    ]);
-
-
-    Route::get('/admin/checkBalances', [
-      'as'   => 'admin.checkBalances',
-      'uses' => 'AdminController@tidyUpPatientRemainingBalance'
-    ]);
-
-
-    Route::get('/tester', function() {
-       return view('tester');
-    });
-
-    // test
-    Route::get('/admin', function() {
-           if(!empty(Auth::user()) && Auth::user()->hasRole('admin')) {
-                return view('tester');
-           }
-           else {
-               return view('welcome');
-           }
-    });
 
 });
