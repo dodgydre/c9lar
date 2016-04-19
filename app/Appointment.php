@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Appointment extends Model implements \MaddHatter\LaravelFullcalendar\IdentifiableEvent
 {
+    protected $fillable = ['uuid'];
     protected $dates = ['start', 'end'];
 
     public function patient() {

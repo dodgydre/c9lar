@@ -1,5 +1,7 @@
 @extends('layouts.app')
-@section('title', 'Schedule')
+@section('title')
+  Schedule - {{ $provider }}
+@endsection
 
 @section('styles')
   <link rel="stylesheet" href="/fullcalendar/fullcalendar.css" />
@@ -18,7 +20,9 @@
 
 @section('content')
 <div class="row">
+
   <div class="col-md-8 col-md-offset-2">
+    <h1>Schedule for {{ $provider }}</h1>
 
   {!! $calendar->calendar() !!}
 

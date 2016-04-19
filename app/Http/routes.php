@@ -41,9 +41,9 @@ Route::group(['middleware' => 'web'], function () {
     Route::get('/admin/calendar', 'AdminController@getCalendarID');
     Route::get('/admin/calendar/add', 'AdminController@addCalendarEvent');
 
-    Route::get('/calendar/show', 'AppointmentController@showCalendar');
-    Route::post('/calendar/updateEvent', 'AppointmentController@updateEvent');
-    Route::post('/calendar/createEvent', 'AppointmentController@createEvent');
+    Route::get('/calendar/{provider_id}/show', 'AppointmentController@showCalendar');
+    Route::post('/calendar/{provider_id}/updateEvent', 'AppointmentController@updateEvent');
+    Route::post('/calendar/{provider_id}/createEvent', 'AppointmentController@createEvent');
 
 
     Route::get('/admin/transactionLog/user/{id}', [

@@ -42,21 +42,18 @@ class GoogleCalendar {
 
     public function addEvent($calendarId, $event)
     {
-      $result = $this->service->events->insert($calendarId, $event);
-      dd($result);
+      return $this->service->events->insert($calendarId, $event);
+
     }
 
     public function getEvents($calendarId, $params)
     {
-      $events = $this->service->events->listEvents($calendarId, $params);
-      return $events;
-      echo $events->nextSyncToken . '<br /><br />';
-      //dd($events);      
-      foreach($events as $event) {
-        echo "Description: " . $event->description . '<br />';
-        echo "Start: " . $event->start->dateTime . '<br />';
-      }
-      dd('done');
+      return $this->service->events->listEvents($calendarId, $params);
+    }
+    //update($calendarId, $eventId, Google_Service_Calendar_Event $postBody, $optParams = array())
+    public function updateEvent($calendarId, $eventId, $event, $params = array())
+    {
+      return $this->service->events->update($calendarId, $eventId, $event, $params);
     }
 
     public function get($calendarId)
