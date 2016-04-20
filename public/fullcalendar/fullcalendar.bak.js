@@ -7138,7 +7138,7 @@ TimeGrid.mixin({
 		}
 	},
 
-	// ANDREAS: Set width to 30%
+
 	// Generates an object with CSS properties/values that should be applied to an event segment element.
 	// Contains important positioning-related properties that should be applied to any event element, customized or not.
 	generateFgSegHorizontalCss: function(seg) {
@@ -7162,28 +7162,10 @@ TimeGrid.mixin({
 			left = backwardCoord;
 			right = 1 - forwardCoord;
 		}
-		// ANDREAS Set the width based on seg.level (1, 2, 3).
 
 		props.zIndex = seg.level + 1; // convert from 0-base to 1-based
-		if(props.zIndex == 1) {
-			props.left = '0%';
-			props.width = '33.33%';
-			//props.right = '64%';
-		}
-		else if(props.zIndex == 2) {
-			props.left = '33.33%';
-			props.width='33.33%';
-			//props.right = '32%';
-		}
-		else if(props.zIndex == 3) {
-			props.left = '66.66%';
-			props.width = '33.33%';
-			//props.right = '4%';
-		}
-
-		//if (event.overlap)
-		//props.left = left * 100 + '%';
-		//props.right = right * 100 + '%';
+		props.left = left * 100 + '%';
+		props.right = right * 100 + '%';
 
 		if (shouldOverlap && seg.forwardPressure) {
 			// add padding to the edge so that forward stacked events don't cover the resizer's icon

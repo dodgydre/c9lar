@@ -94,6 +94,18 @@ class AppointmentController extends Controller
       );
      }
 
+     $events[] = \Calendar::event(
+      'no Overlap Event',
+      false,
+      '2016-04-19 15:00:00',
+      '2016-04-19 16:00:00',
+      'fffff',
+      [
+        'provider' => $event->provider,
+        'overlap' => false,
+      ]
+    );
+
      $calendar = \Calendar::setId('pbcc_calendar')
       ->addEvents($events)
       ->setOptions([
@@ -117,7 +129,38 @@ class AppointmentController extends Controller
             ],
         ])->setCallbacks([
           // UPDATE EXISTING EVENT
-          'eventDrop' => "function(calEvent, jsEvent, view) {
+          'eventDrop' => "function(calEvent, delta, revertFunc, jsEvent, ui, view) {
+            // check overlapping
+            var start = new Date(calEvent.start);
+            var end = new Date(calEvent.end);
+            //var overlap = [];
+            // loop through all of the events looking for overlaps
+            var overlap = $('#calendar-pbcc_calendar').fullCalendar('clientEvents', function(ev) {
+
+              if( ev == calEvent)
+                  return false;
+              var estart = new Date(ev.start);
+              var eend = new Date(ev.end);
+              /*  return (
+                    ( Math.round(start) > Math.round(estart) && Math.round(start) < Math.round(eend) )
+                    ||
+                    ( Math.round(end) > Math.round(estart) && Math.round(end) < Math.round(eend) )
+                    ||
+                    ( Math.round(start) < Math.round(estart) && Math.round(end) > Math.round(eend) )
+                );
+                */
+              return (Math.round(estart)/1000 < Math.round(end)/1000 && Math.round(eend) > Math.round(start));
+            });
+            console.log(overlap);
+
+            if (overlap.length){
+              revertFunc();
+              console.log('reverted');
+              return false;
+             }
+
+             // end check overlap
+
             var url = '/calendar/" . $provider_id . "/updateEvent';
             var post = {};
             post.id = calEvent.id;
@@ -128,7 +171,7 @@ class AppointmentController extends Controller
             post.start = calEvent.start.format('YYYY-MM-DD HH:mm:ss');
             post.end = calEvent.end.format('YYYY-MM-DD HH:mm:ss');
             post.title = calEvent.title;
-            $.ajax({
+            /*$.ajax({
               headers: {
                 'X-CSRF-TOKEN': $('meta[name=\"csrf-token\"]').attr('content')
               },
@@ -139,13 +182,12 @@ class AppointmentController extends Controller
               success: function(data) {
                 return data;
               }
-            });
-            return false;
+            });*/
+            return true;
             // change the border color just for fun
             //$(this).css('border-color', 'red');
           }",  // UPDATE EXISTING EVENT
           'eventResize' => "function(calEvent, jsEvent, view) {
-            //alert('/move/event/' + calEvent.id + '/' + calEvent.start + '/' + calEvent.end);
             var url = '/calendar/" . $provider_id . "/updateEvent';
             var post = {};
             post.id = calEvent.id;
@@ -156,7 +198,7 @@ class AppointmentController extends Controller
             post.start = calEvent.start.format('YYYY-MM-DD HH:mm:ss');
             post.end = calEvent.end.format('YYYY-MM-DD HH:mm:ss');
             post.title = calEvent.title;
-            $.ajax({
+            /*$.ajax({
               headers: {
                 'X-CSRF-TOKEN': $('meta[name=\"csrf-token\"]').attr('content')
               },
@@ -167,8 +209,8 @@ class AppointmentController extends Controller
               success: function(data) {
                 return data;
               }
-            });
-            return false;
+            });*/
+            return true;
           }",  // CREATE NEW EVENT
           'select' => "function(start, end, allDay) {
             var title = prompt('Event Title:');
@@ -196,7 +238,7 @@ class AppointmentController extends Controller
               post.gend = end.toISOString();
               post.title = title;
               post.allDay = ! start.hasTime();
-              $.ajax({
+              /*$.ajax({
                 headers: {
                   'X-CSRF-TOKEN': $('meta[name=\"csrf-token\"]').attr('content')
                 },
@@ -207,27 +249,26 @@ class AppointmentController extends Controller
                 success: function(data) {
                   return data;
                 }
-              });
+              });*/
             }
             $('#calendar-pbcc_calendar').fullCalendar('unselect');
 
           }",
           'eventRender' => "function(event, element) {
-            console.log(event.id);
+            //console.log(event.id);
             if(event.provider == 'JEG') {
-              console.log('JEG');
+              //console.log('JEG');
               element.addClass('JEG');
             }
             else if(event.provider == 'CH') {
-              console.log('CH');
+              //console.log('CH');
               element.addClass('CH');
             }
-          }",/*  playing with event width
-          'eventAfterRender' => "function(event, element, view) {
-            var width = $('.fc-widget-content').width();
-            var left = element.position().left;
-            width = width/3;
-            $(element).css('width', width + 'px');
+          }",//  playing with event width
+          /*'eventAfterRender' => "function(event, element, view) {
+            if(typeof event.overlap != 'undefined' && event.overlap == false) {
+              $(element).css('width', '100%');
+            }
           }"*/
         ]);
 
@@ -275,13 +316,15 @@ class AppointmentController extends Controller
     }
 
     // TODO: Check this at home... CORS request from here.
-    public function createEvent(Request $request) {
+    public function createEvent(Request $request, $provider_id) {
       //dd($data);
       if($request->ajax())
       {
         $data = $request->all();
         $calendar = new GoogleCalendar;
-        $calendarId = 'pn0qnhkiai0calfpf7b1lvojfg@group.calendar.google.com';
+
+        $provider = DB::table('google_calendar_settings')->where('name', '=', 'calendar' . $provider_id . '_provider')->value('value');
+        $calendarId = DB::table('google_calendar_settings')->where('name', '=', 'calendar' . $provider_id . '_id')->value('value');
 
         $event = new \Google_Service_Calendar_Event(array(
           'summary' => $data['title'],
