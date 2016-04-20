@@ -7,9 +7,11 @@ use Illuminate\Http\Request;
 use App\Services\GoogleCalendar;
 use App\Http\Requests;
 use Input;
-use App\Appointment;
 use Carbon\Carbon;
 use DB;
+
+use App\Appointment;
+use App\Patient;
 
 class AppointmentController extends Controller
 {
@@ -43,21 +45,22 @@ class AppointmentController extends Controller
 
 
     public function showCalendar($provider_id) {
-      $events = [];
-
       $calendar = new GoogleCalendar;
+      $patients = Patient::orderBy('last_name')->get();
+      $patientList = [];
+      foreach($patients as $patient) {
+        $patientList[$patient->id] = $patient->last_name . ', ' . $patient->first_name;
+      }
 
       $provider = DB::table('google_calendar_settings')->where('name', '=', 'calendar' . $provider_id . '_provider')->value('value');
       $calendarId = DB::table('google_calendar_settings')->where('name', '=', 'calendar' . $provider_id . '_id')->value('value');
       $nextSyncToken = DB::table('google_calendar_settings')->where('name', '=', 'calendar' . $provider_id . '_syncToken')->value('value');
 
-      //$calendarId = 'pn0qnhkiai0calfpf7b1lvojfg@group.calendar.google.com';
-      //$nextSyncToken = '';
       $params = ['syncToken'=>$nextSyncToken];
       $results = $calendar->getEvents($calendarId, $params);
       // set the new sync token
-      //dd($results);
       DB::table('google_calendar_settings')->where('name', '=', 'calendar' . $provider_id . '_syncToken')->update(['value' => $results->nextSyncToken]);
+
 
       foreach($results as $result) {
         // if cancelled, remove the old one
@@ -80,6 +83,7 @@ class AppointmentController extends Controller
         }
       }
 
+     $events = [];
      $eloquentEvents = Appointment::where('provider', '=', $provider)->get();
      foreach($eloquentEvents as $event) {
        $events[] = \Calendar::event(
@@ -90,6 +94,7 @@ class AppointmentController extends Controller
         $event->uuid,
         [
           'provider' => $event->provider,
+          'className' => $event->provider,
         ]
       );
      }
@@ -97,11 +102,11 @@ class AppointmentController extends Controller
      $events[] = \Calendar::event(
       'no Overlap Event',
       false,
-      '2016-04-19 15:00:00',
-      '2016-04-19 16:00:00',
+      '2016-04-20 15:00:00',
+      '2016-04-20 16:00:00',
       'fffff',
       [
-        'provider' => $event->provider,
+        'provider' => "JEG",
         'overlap' => false,
       ]
     );
@@ -115,13 +120,14 @@ class AppointmentController extends Controller
           'defaultView'=>'agendaDay',
           'slotEventOverlap' => false,
           'slotDuration'=>'00:15',
-          'slotLabelFormat' => 'h(:mm)a',
+          'slotLabelFormat' => 'h:mma',
           'slotLabelInterval' => '00:30',
           'selectable' => true,
           'selectHelper' => true,
           'allDaySlot' => false,
           'minTime' => '08:00:00',
           'maxTime' => '20:00:00',
+          'timezone' => 'local',
           'header' => [
             'left' => 'prev,next today',
             'center' => 'title',
@@ -129,33 +135,34 @@ class AppointmentController extends Controller
             ],
         ])->setCallbacks([
           // UPDATE EXISTING EVENT
+          // Add check for overlaps to the resize function.
           'eventDrop' => "function(calEvent, delta, revertFunc, jsEvent, ui, view) {
             // check overlapping
+
             var start = new Date(calEvent.start);
             var end = new Date(calEvent.end);
-            //var overlap = [];
+
             // loop through all of the events looking for overlaps
             var overlap = $('#calendar-pbcc_calendar').fullCalendar('clientEvents', function(ev) {
 
-              if( ev == calEvent)
-                  return false;
+              if( ev == calEvent) { return false; }
+
               var estart = new Date(ev.start);
               var eend = new Date(ev.end);
-              /*  return (
-                    ( Math.round(start) > Math.round(estart) && Math.round(start) < Math.round(eend) )
-                    ||
-                    ( Math.round(end) > Math.round(estart) && Math.round(end) < Math.round(eend) )
-                    ||
-                    ( Math.round(start) < Math.round(estart) && Math.round(end) > Math.round(eend) )
-                );
-                */
-              return (Math.round(estart)/1000 < Math.round(end)/1000 && Math.round(eend) > Math.round(start));
-            });
-            console.log(overlap);
 
-            if (overlap.length){
+              // check overlaps
+              return (
+                (Math.round(start/1000) > Math.round(estart/1000) && Math.round(end/1000) < Math.round(eend/1000)) ||
+                (Math.round(end/1000) > Math.round(estart/1000) && Math.round(end/100) < Math.round(eend/100)) ||
+                (Math.round(start/100) < Math.round(eend/100) && Math.round(end/100) > Math.round(eend/100)) ||
+                (Math.round(start/100) == Math.round(estart/100)) ||
+                (Math.round(end/100) == Math.round(eend/100))
+              );
+
+            });
+
+            if (overlap.length > 2){
               revertFunc();
-              console.log('reverted');
               return false;
              }
 
@@ -171,7 +178,7 @@ class AppointmentController extends Controller
             post.start = calEvent.start.format('YYYY-MM-DD HH:mm:ss');
             post.end = calEvent.end.format('YYYY-MM-DD HH:mm:ss');
             post.title = calEvent.title;
-            /*$.ajax({
+            $.ajax({
               headers: {
                 'X-CSRF-TOKEN': $('meta[name=\"csrf-token\"]').attr('content')
               },
@@ -182,12 +189,43 @@ class AppointmentController extends Controller
               success: function(data) {
                 return data;
               }
-            });*/
+            });
             return true;
             // change the border color just for fun
             //$(this).css('border-color', 'red');
           }",  // UPDATE EXISTING EVENT
-          'eventResize' => "function(calEvent, jsEvent, view) {
+          'eventResize' => "function(calEvent, delta, revertFunc, jsEvent, view) {
+            // check overlapping
+
+            var start = new Date(calEvent.start);
+            var end = new Date(calEvent.end);
+
+            // loop through all of the events looking for overlaps
+            var overlap = $('#calendar-pbcc_calendar').fullCalendar('clientEvents', function(ev) {
+
+              if( ev == calEvent) { return false; }
+
+              var estart = new Date(ev.start);
+              var eend = new Date(ev.end);
+              // check overlaps
+              return (
+                (Math.round(start/1000) > Math.round(estart/1000) && Math.round(end/1000) < Math.round(eend/1000)) ||
+                (Math.round(end/1000) > Math.round(estart/1000) && Math.round(end/100) < Math.round(eend/100)) ||
+                (Math.round(start/100) < Math.round(eend/100) && Math.round(end/100) > Math.round(eend/100)) ||
+                (Math.round(start/100) == Math.round(estart/100)) ||
+                (Math.round(end/100) == Math.round(eend/100))
+              );
+
+            });
+
+            if (overlap.length > 2){
+              revertFunc();
+              return false;
+             }
+
+             // end check overlap
+
+
             var url = '/calendar/" . $provider_id . "/updateEvent';
             var post = {};
             post.id = calEvent.id;
@@ -198,7 +236,7 @@ class AppointmentController extends Controller
             post.start = calEvent.start.format('YYYY-MM-DD HH:mm:ss');
             post.end = calEvent.end.format('YYYY-MM-DD HH:mm:ss');
             post.title = calEvent.title;
-            /*$.ajax({
+            $.ajax({
               headers: {
                 'X-CSRF-TOKEN': $('meta[name=\"csrf-token\"]').attr('content')
               },
@@ -209,11 +247,18 @@ class AppointmentController extends Controller
               success: function(data) {
                 return data;
               }
-            });*/
+            });
             return true;
           }",  // CREATE NEW EVENT
           'select' => "function(start, end, allDay) {
-            var title = prompt('Event Title:');
+            //var title = prompt('Event Title:');
+            $('#createEventModal #apptStartTime').val(start);
+            $('#createEventModal #apptEndTime').val(end);
+            $('#createEventModal #apptAllDay').val(allDay);
+            $('#createEventModal').modal('show');
+            
+          }",
+/*
             if(title) {
 
               // first put an event in the local calendar display
@@ -222,7 +267,10 @@ class AppointmentController extends Controller
                 title: title,
                 start: start,
                 end: end,
-                allDay: ! start.hasTime()
+                allDay: ! start.hasTime(),
+                provider: '" . $provider . "',
+                className: '" . $provider . "',
+
               },
               true
               );
@@ -238,7 +286,7 @@ class AppointmentController extends Controller
               post.gend = end.toISOString();
               post.title = title;
               post.allDay = ! start.hasTime();
-              /*$.ajax({
+              $.ajax({
                 headers: {
                   'X-CSRF-TOKEN': $('meta[name=\"csrf-token\"]').attr('content')
                 },
@@ -249,12 +297,12 @@ class AppointmentController extends Controller
                 success: function(data) {
                   return data;
                 }
-              });*/
+              });
             }
             $('#calendar-pbcc_calendar').fullCalendar('unselect');
 
-          }",
-          'eventRender' => "function(event, element) {
+          }",*/
+          /*'eventRender' => "function(event, element) {
             //console.log(event.id);
             if(event.provider == 'JEG') {
               //console.log('JEG');
@@ -264,15 +312,27 @@ class AppointmentController extends Controller
               //console.log('CH');
               element.addClass('CH');
             }
-          }",//  playing with event width
-          /*'eventAfterRender' => "function(event, element, view) {
-            if(typeof event.overlap != 'undefined' && event.overlap == false) {
+          }",*/ //  playing with event width
+          'eventAfterRender' => "function(event, element, view) {
+            /*if(typeof event.overlap != 'undefined' && event.overlap == false) {
               $(element).css('width', '100%');
+            }*/
+            if( $(element).css('z-index') == 1) {
+              $(element).css('width', '33.33%');
+              $(element).css('left', '0%');
             }
-          }"*/
+            else if( $(element).css('z-index') == 2) {
+              $(element).css('width', '33.33%');
+              $(element).css('left', '33.33%');
+            }
+            else if( $(element).css('z-index') == 3) {
+              $(element).css('width', '33.33%');
+              $(element).css('left', '66.66%');
+            }
+          }"
         ]);
 
-     return view('calendar.show', compact('calendar', 'provider'));
+     return view('calendar.show', compact('calendar', 'provider', 'provider_id', 'patientList'));
 
     }
 

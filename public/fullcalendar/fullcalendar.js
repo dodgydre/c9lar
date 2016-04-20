@@ -7163,7 +7163,6 @@ TimeGrid.mixin({
 			right = 1 - forwardCoord;
 		}
 		// ANDREAS Set the width based on seg.level (1, 2, 3).
-
 		props.zIndex = seg.level + 1; // convert from 0-base to 1-based
 		if(props.zIndex == 1) {
 			props.left = '0%';

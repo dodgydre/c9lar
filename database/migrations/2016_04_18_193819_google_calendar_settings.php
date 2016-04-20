@@ -13,12 +13,12 @@ class GoogleCalendarSettings extends Migration
     public function up()
     {
         //
-        Schema::create('google_calendar_settings', function(Blueprint $table) {
+        /*Schema::create('google_calendar_settings', function(Blueprint $table) {
           //$table->increments('id');
-          $table->string('name'); // calendar1_provider, calendar1_id, calendar1_syncToken
+          $table->string('name')->unique(); // calendar1_provider, calendar1_id, calendar1_syncToken
           $table->string('value');
           $table->timestamps();
-        });
+        });*/
     }
 
     /**
