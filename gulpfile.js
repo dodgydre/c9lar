@@ -1,4 +1,5 @@
 var elixir = require('laravel-elixir');
+require('laravel-elixir-vueify');
 
 /*
  |--------------------------------------------------------------------------
@@ -14,6 +15,8 @@ var elixir = require('laravel-elixir');
 elixir(function(mix) {
     mix.sass('app.scss');
     mix.sass('bootstrap.scss');
+
+    mix.browserify('app.js');
 
     // this can be tidied up likely.
     mix.copy('bower/bootstrap-datepicker/dist/css/bootstrap-datepicker.min.css', 'public/css/bootstrap-datepicker.min.css');
