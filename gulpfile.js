@@ -1,6 +1,11 @@
 var elixir = require('laravel-elixir');
 require('laravel-elixir-vueify');
 
+var paths = {
+  'bs_fonts': 'node_modules/bootstrap-sass/assets/fonts',
+  'fa_fonts': 'node_modules/font-awesome/fonts'
+};
+
 /*
  |--------------------------------------------------------------------------
  | Elixir Asset Management
@@ -13,12 +18,16 @@ require('laravel-elixir-vueify');
  */
 
 elixir(function(mix) {
-    mix.sass('app.scss');
-    mix.sass('bootstrap.scss');
+    mix.sass('app.scss')
+      .copy(paths.bs_fonts + 'bootstrap/**', 'public/fonts/bootstrap')
+      .copy(paths.fa_fonts + '/**', 'public/fonts')
+      .styles([
+        '../../../node_modules/bootstrap-datepicker/dist/css/bootstrap-datepicker.css',
+        '../../../node_modules/datatables/media/css/jquery.dataTables.css',
+        '../../../node_modules/font-awesome/css/font-awesome.css',
+        '../../../node_modules/selectize/dist/css/selectize.bootstrap3.css'
+      ], 'public/css/lib.css')
 
-    mix.browserify('app.js');
+      .browserify('app.js');
 
-    // this can be tidied up likely.
-    mix.copy('bower/bootstrap-datepicker/dist/css/bootstrap-datepicker.min.css', 'public/css/bootstrap-datepicker.min.css');
-    mix.copy('bower/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js', 'public/js/bootstrap-datepicker.min.js');
 });

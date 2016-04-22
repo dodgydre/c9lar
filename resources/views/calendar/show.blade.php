@@ -5,17 +5,12 @@
 
 @section('styles')
   <link rel="stylesheet" href="/fullcalendar/fullcalendar.css" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.1/css/selectize.bootstrap3.min.css" />
+  <!--<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.1/css/selectize.bootstrap3.min.css" />-->
   <!--
   <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/fullcalendar/2.2.7/fullcalendar.min.css"/>
 -->
   <style>
-    .JEG {
-      background: green;
-    }
-    .CH {
-      background: purple;
-    }
+
   </style>
 @endsection
 

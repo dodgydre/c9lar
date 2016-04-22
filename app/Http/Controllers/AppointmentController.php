@@ -94,7 +94,7 @@ class AppointmentController extends Controller
         $event->uuid,
         [
           'provider' => $event->provider,
-          'className' => $event->provider,
+          'className' => $event->provider . '_appt',
         ]
       );
      }
@@ -256,7 +256,7 @@ class AppointmentController extends Controller
             $('#createEventModal #apptEndTime').val(end);
             $('#createEventModal #apptAllDay').val(allDay);
             $('#createEventModal').modal('show');
-            
+
           }",
 /*
             if(title) {

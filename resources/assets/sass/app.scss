@@ -1,2 +1,45 @@
 // @import "node_modules/bootstrap-sass/assets/stylesheets/bootstrap";
 
+@import url(https://fonts.googleapis.com/css?family=Lato:100,300,400,700);
+$font-family-sans-serif: 'Lato', sans-serif;
+
+@import "bootstrap.scss";
+
+.btn-h1-spacing {
+  margin-top: 18px;
+}
+
+.form-spacing-top {
+  margin-top: 30px;
+}
+
+.charges-panel {
+  height: 250px;
+  overflow-y: scroll;
+}
+
+.payments-panel {
+  height: 250px;
+  overflow-y: scroll;
+}
+
+.has_error {
+  color: red;
+}
+
+.has_success {
+  color: green;
+}
+
+.fa-btn {
+    margin-right: 6px;
+}
+
+
+// Appointment colors for JEG and CH
+.JEG_appt {
+  background: green;
+}
+.CH_appt {
+  background: purple;
+}
