@@ -2,12 +2,6 @@
 
 @section('title', '| Procedures')
 
-@section('styles')
-
-<link rel="stylesheet" href="{{ URL::asset('css/datatables.min.css') }}">
-
-@endsection
-
 @section('content')
 
   <div class="row">
@@ -53,7 +47,7 @@
                   </tr>
                 </thead>
                 <tbody>
-                  @foreach($procedures as $procedure) 
+                  @foreach($procedures as $procedure)
                     <tr class="type{{$procedure->type}} procedure_row {{ ($procedure->inactive == 1) ? 'danger' : ''}}">
                       <td> <span class="glyphicon glyphicon-{{ ($procedure->taxable == 1) ? 'check' : 'unchecked' }}"></span> </td>
                       <td> {{ $procedure->code }}</td>
@@ -93,8 +87,6 @@
 @endsection
 
 @section('scripts')
-
-<script type="text/javascript" src="{{ URL::asset('js/datatables.min.js') }}"></script>
 
 <script type="text/javascript">
 

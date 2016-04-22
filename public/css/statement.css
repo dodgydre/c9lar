@@ -1,191 +1,183 @@
 .clearfix:after {
+  clear: both;
   content: "";
   display: table;
-  clear: both;
-}
-
-a {
-  color: #5D6975;
-  text-decoration: underline;
 }
 
 body {
   position: relative;
-  width: 21cm;
+  width: 19cm;
   height: 29cm;
-  margin: 0 auto;
   color: #001028;
-  background: #FFFFFF;
+  background: #ffffff;
   font-family: Arial, sans-serif;
   font-size: 12px;
-  font-family: Arial;
 }
 
-header {
-  padding: 10px 0;
-  margin-bottom: 30px;
-}
-
-#logo {
-  text-align: center;
+/**********
+ *
+ * LOGO
+ *
+ **********/
+.logo {
   margin-bottom: 10px;
+  text-align: center;
 }
 
-#logo img {
+.logo img {
   width: 300px;
 }
 
-#address {
+/**********
+ *
+ * Address Block
+ *
+ **********/
+.address_block {
+  font-size: 14px;
   text-align: center;
   margin-bottom: 15px;
 }
 
-h1 {
-  border-top: 1px solid  #5D6975;
-  border-bottom: 1px solid  #5D6975;
-  color: #5D6975;
-  font-size: 2.4em;
-  line-height: 1.4em;
-  font-weight: normal;
-  text-align: center;
-  margin: 0 0 20px 0;
-  background: url(dimension.png);
+/**********
+ *
+ * HR
+ *
+ **********/
+.top_line {
+  border-top: 0.5px solid black;
 }
 
-#patient {
+/**********
+ *
+ * Patient + Instruction Table
+ *
+ **********/
+.patient_instructions_table {
+  width: 100%;
+  border-collapse: collapse;
+  border-spacing: 0;
+  margin-bottom: 20px;
+}
+
+.patient_instructions_table tr {
   padding-top: 10px;
-  float: left;
+  margin-bottom: 20px;
 }
 
-#patient span {
-  color: #000;
-  text-align: right;
-  width: 60px;
-  margin-right: 10px;
-  display: inline-block;
-  font-size: 1.2em;
+.patient {
   font-weight: bold;
+  text-align: right;
+  line-height: 1.1em;
+  width: 20%;
+  padding-right: 20px;
 }
 
-#instructions {
-  padding-top: 10px;
-  width: 300px;
-  float: right;
-  text-align: left;
+.address {
+  line-height: 1.1em;
+  width: 30%;
 }
 
-.instructions{
+.instructions {
+  line-height: 1.1em;
+  width: 50%;
+}
+
+.instructions span {
   font-weight: bold;
   text-decoration: underline;
 }
 
-#patient div,
-#instructions div {
-  white-space: nowrap;
-}
-
-hr.thick {
-  border-top: 2px solid black;
-}
-
-table#procedures  {
+/**********
+ *
+ * Procedures Table
+ *
+ **********/
+ .procedures_table {
   width: 100%;
   border-collapse: collapse;
   border-spacing: 0;
   margin-bottom: 20px;
 }
 
-
-/*table tr:nth-child(2n-1) td {
+.procedures_table table tr:nth-child(2n-1) td {
   background: #F5F5F5;
-}*/
-
-table thead tr {
-  border-top: 1px solid #C1CED9;
 }
 
-table th,
-table td {
+.procedures_table td {
+  padding-top: 5px;
+  padding-bottom: 5px;
+}
+
+.procedures_table th {
+  font-weight: bold;
+  color: #222;
+  border-top: 1px solid black;
+  border-bottom: 1px solid black;
   text-align: center;
 }
 
-table th {
-  padding: 5px 20px;
-  color: #5D6975;
-  border-bottom: 1px solid #C1CED9;
-  white-space: nowrap;
-  font-weight: normal;
+.date { width: 15%; }
+.desc { width: 40%; }
+.proc { width: 15%; }
+.units { width: 15%; }
+.total {width: 15%; }
+
+td.date,
+td.proc,
+td.units,
+td.total {
+  text-align: center;
 }
 
-table .date,
-table .desc {
+td .desc {
   text-align: left;
 }
 
-.proc,
-.units,
-.total {
+.total_text {
+  text-align: right;
+}
+.total_num {
   text-align: center;
 }
 
-table td {
+.provider_div {
   padding: 20px;
+  border: 1px solid black;
+}
+.provider_div span {
+  display: inline-block;
   text-align: right;
+  width: 120px;
+  padding-right: 15px;
+  font-weight: bold;
 }
 
-table td.proc,
-table td.desc {
-  vertical-align: top;
-}
+/**********
+ *
+ * Assign and Release
+ *
+ **********/
+ .release {
+   display: inline-block;
+   width: 120px;
+   padding-left: 15px;
+   padding-right: 15px;
+ }
 
-table td.unit,
-table td.proc,
-table td.total {
-  font-size: 1.2em;
-}
+ .signature_line {
+   display: inline-block;
+   width: 300px;
+   border-bottom: 1px solid black;
+   margin-right: 15px;
+ }
+ .date_line {
+   display:inline-block;
+   width: 150px;
+   border-bottom: 1px solid black;
+   margin-left: 15px;
+   margin-right: 15px;
+   margin-top: 100px;
+ }
 
-table td.grand {
-  border-top: 1px solid #5D6975;
-}
-
-
-
-/**********************************************/
-#totals {
-  width: 200px;
-  border-collapse: collapse;
-  border-spacing: 0;
-  margin-bottom: 20px;
-  border-top: 1px solid black;
-  float: right;
-  padding: 0px;
-}
-
-td.total_head {
-  width: 75px;
-  text-align: right;
-}
-td.total_num {
-  width: 100px;
-  text-align: center;
-  font-size: 1.2em;
-}
-
-
-
-
-#notices .notice {
-  color: #5D6975;
-  font-size: 1.2em;
-}
-
-footer {
-  color: #5D6975;
-  width: 100%;
-  height: 30px;
-  position: absolute;
-  bottom: 0px;
-  border-top: 1px solid #C1CED9;
-  padding: 8px 0;
-  text-align: center;
-}
+/*# sourceMappingURL=statement.css.map */

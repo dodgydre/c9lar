@@ -2,10 +2,6 @@
 
 @section('title', '| Edit Employee')
 
-@section('styles')
-  <link rel="stylesheet" href="{{ URL::asset('css/bootstrap-datepicker.min.css') }}">
-@endsection
-
 @section('content')
 
   <div class="row">
@@ -138,9 +134,6 @@
 @endsection
 
 @section('scripts')
-  <script type="text/javascript" src="{{ URL::asset('js/bootstrap-datepicker.min.js') }}"></script>
-  <script type="text/javascript" src="{{ URL::asset('js/jquery.mask.min.js') }}"></script>
-
   <script type="text/javascript">
     $(document).ready(function() {
       $('.phone_us').mask('(000) 000-0000');

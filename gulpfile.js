@@ -3,7 +3,8 @@ require('laravel-elixir-vueify');
 
 var paths = {
   'bs_fonts': 'node_modules/bootstrap-sass/assets/fonts',
-  'fa_fonts': 'node_modules/font-awesome/fonts'
+  'fa_fonts': 'node_modules/font-awesome/fonts',
+  'datatables_images': 'node_modules/datatables/media/images/'
 };
 
 /*
@@ -21,13 +22,24 @@ elixir(function(mix) {
     mix.sass('app.scss')
       .copy(paths.bs_fonts + 'bootstrap/**', 'public/fonts/bootstrap')
       .copy(paths.fa_fonts + '/**', 'public/fonts')
+      .copy(paths.datatables_images + '/*.png', 'public/images')
+
       .styles([
         '../../../node_modules/bootstrap-datepicker/dist/css/bootstrap-datepicker.css',
         '../../../node_modules/datatables/media/css/jquery.dataTables.css',
         '../../../node_modules/font-awesome/css/font-awesome.css',
         '../../../node_modules/selectize/dist/css/selectize.bootstrap3.css'
       ], 'public/css/lib.css')
-
-      .browserify('app.js');
+      .styles([
+        '../fullcalendar/fullcalendar.css'
+      ], 'public/css/fullcalendar.css')
+      .styles([
+        'statement.css'
+      ], 'public/css/statement.css')
+      .browserify('app.js')
+      .scripts([
+        '../fullcalendar/fullcalendar.js',
+        '../fullcalendar/lib/moment.min.js'
+      ], 'public/js/calendar.js');
 
 });

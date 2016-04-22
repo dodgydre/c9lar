@@ -134,7 +134,3 @@
 
 
 @endsection
-
-@section('scripts')
-  <script src="{{ URL::asset('js/jasny-bootstrap.min.js') }}" type="text/javascript"></script>
-@endsection

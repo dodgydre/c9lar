@@ -2,10 +2,6 @@
 
 @section('title', '| Patient')
 
-@section('styles')
-<link rel="stylesheet" href="{{ URL::asset('css/bootstrap-datepicker.min.css') }}">
-@endsection
-
 @section('content')
 
   <div class="row">

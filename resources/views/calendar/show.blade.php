@@ -4,14 +4,7 @@
 @endsection
 
 @section('styles')
-  <link rel="stylesheet" href="/fullcalendar/fullcalendar.css" />
-  <!--<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.1/css/selectize.bootstrap3.min.css" />-->
-  <!--
-  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/fullcalendar/2.2.7/fullcalendar.min.css"/>
--->
-  <style>
-
-  </style>
+  <link rel="stylesheet" href="/css/fullcalendar.css" />
 @endsection
 
 @section('content')
@@ -57,16 +50,11 @@
 
 @section('scripts')
   <!--<script src="/fullcalendar/lib/jquery.min.js"></script>-->
-  <script src="/fullcalendar/lib/moment.min.js"></script>
-  <script src="/fullcalendar/moment.range.min.js"></script>
-  <script src="/fullcalendar/fullcalendar.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.1/js/standalone/selectize.js"></script>
-  <!--
-  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
-  <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.9.0/moment.min.js"></script>
-  <script src="//cdnjs.cloudflare.com/ajax/libs/fullcalendar/2.2.7/fullcalendar.min.js"></script>
-  -->
-
+  <!--<script src="/fullcalendar/lib/moment.min.js"></script>-->
+  <!--<script src="/fullcalendar/moment.range.min.js"></script>-->
+  <!--<script src="/fullcalendar/fullcalendar.js"></script>-->
+  <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.1/js/standalone/selectize.js"></script>-->
+  <script src="/js/calendar.js"></script>
   {!! $calendar->script() !!}
   <script>
   $(document).ready(function() {

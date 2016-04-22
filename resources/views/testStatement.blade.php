@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>Statement</title>
-  <link rel="stylesheet" href="css/statement2.css" media="all" />
+  <link rel="stylesheet" href="css/statement.css" media="all" />
 
   <style>
     .page-break {
@@ -69,8 +69,8 @@
           </tr>
         </thead>
         <tbody>
-          
-          
+
+
           @foreach($transactions as $transaction)
             <tr>
               <td class="date">{{ date('d/m/Y' ,strtotime($transaction->date_from)) }} </td>

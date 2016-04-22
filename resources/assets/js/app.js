@@ -5,6 +5,6 @@ require('bootstrap-sass');
 //require('../../../node_modules/selectize/dist/js/standalone/selectize.js');
 require('selectize');
 //require('jasny-bootstrap');
-require('datatables');
+require('datatables')();
 require('bootstrap-datepicker');
 require('jquery-mask-plugin');

@@ -2,12 +2,6 @@
 
 @section('title', '| Patients')
 
-@section('styles')
-
-  <link rel="stylesheet" href="{{ URL::asset('css/datatables.min.css') }}">
-
-@endsection
-
 @section('content')
 
   <div class="row">
@@ -73,8 +67,6 @@
 @endsection
 
 @section('scripts')
-
-<script type="text/javascript" src="{{ URL::asset('js/datatables.min.js') }}"></script>
 
 <script type="text/javascript">
 
