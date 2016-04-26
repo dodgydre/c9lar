@@ -101,7 +101,7 @@ class PatientController extends Controller
         $patient->phone2 = $request->phone2;
         $patient->phone3 = $request->phone3;
         $patient->gender = $request->gender;
-        $patient->dob = $request->dob;
+        $patient->dob = Carbon::createFromFormat('m/d/Y', $request->dob);
         $patient->email = $request->email;
 
         $patient->save();

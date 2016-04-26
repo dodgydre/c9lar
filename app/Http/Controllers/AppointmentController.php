@@ -12,6 +12,8 @@ use DB;
 
 use App\Appointment;
 use App\Patient;
+use App\Provider;
+use App\Calendar;
 
 class AppointmentController extends Controller
 {
@@ -52,16 +54,18 @@ class AppointmentController extends Controller
         $patientList[$patient->id] = $patient->last_name . ', ' . $patient->first_name;
       }
 
-      $provider = DB::table('google_calendar_settings')->where('name', '=', 'calendar' . $provider_id . '_provider')->value('value');
-      $calendarId = DB::table('google_calendar_settings')->where('name', '=', 'calendar' . $provider_id . '_id')->value('value');
-      $nextSyncToken = DB::table('google_calendar_settings')->where('name', '=', 'calendar' . $provider_id . '_syncToken')->value('value');
+      $provider = Provider::find($provider_id);
+      $provider_calendar = $provider->calendar;
+      $calendarId = $provider_calendar->calendar_id;
+      $nextSyncToken = $provider_calendar->syncToken;
 
       $params = ['syncToken'=>$nextSyncToken];
       $results = $calendar->getEvents($calendarId, $params);
       // set the new sync token
-      DB::table('google_calendar_settings')->where('name', '=', 'calendar' . $provider_id . '_syncToken')->update(['value' => $results->nextSyncToken]);
+      $provider_calendar->syncToken = $results->nextSyncToken;
+      $provider_calendar->save();
 
-
+      // update the appointments table
       foreach($results as $result) {
         // if cancelled, remove the old one
         if($result->status == 'cancelled') {
@@ -78,13 +82,14 @@ class AppointmentController extends Controller
           $event->start = Carbon::createFromFormat('Y-m-d\TH:i:sO', $result->start->dateTime);
           $event->end = Carbon::createFromFormat('Y-m-d\TH:i:sO', $result->end->dateTime);
           $event->uuid = $result->id;
-          $event->provider = $provider;
+          $event->provider = $provider->code;
+          $event->description = $result->description;
           $event->save();
         }
       }
 
      $events = [];
-     $eloquentEvents = Appointment::where('provider', '=', $provider)->get();
+     $eloquentEvents = Appointment::where('provider', '=', $provider->code)->get();
      foreach($eloquentEvents as $event) {
        $events[] = \Calendar::event(
         $event->title,
@@ -95,6 +100,7 @@ class AppointmentController extends Controller
         [
           'provider' => $event->provider,
           'className' => $event->provider . '_appt',
+          'description' => $event->description
         ]
       );
      }
@@ -133,6 +139,7 @@ class AppointmentController extends Controller
             'center' => 'title',
             'right' => 'agendaDay, basicDay, agendaWeek, month'
             ],
+          'hiddenDays' => [ 0, 6 ]
         ])->setCallbacks([
           // UPDATE EXISTING EVENT
           // Add check for overlaps to the resize function.
@@ -178,7 +185,9 @@ class AppointmentController extends Controller
             post.start = calEvent.start.format('YYYY-MM-DD HH:mm:ss');
             post.end = calEvent.end.format('YYYY-MM-DD HH:mm:ss');
             post.title = calEvent.title;
-            $.ajax({
+            // TODO: Google Calendar allows for a description.  Add extra text to modal.
+            post.description = 'description';
+            /*$.ajax({
               headers: {
                 'X-CSRF-TOKEN': $('meta[name=\"csrf-token\"]').attr('content')
               },
@@ -189,7 +198,7 @@ class AppointmentController extends Controller
               success: function(data) {
                 return data;
               }
-            });
+            });*/
             return true;
             // change the border color just for fun
             //$(this).css('border-color', 'red');
@@ -222,9 +231,7 @@ class AppointmentController extends Controller
               revertFunc();
               return false;
              }
-
              // end check overlap
-
 
             var url = '/calendar/" . $provider_id . "/updateEvent';
             var post = {};
@@ -236,7 +243,7 @@ class AppointmentController extends Controller
             post.start = calEvent.start.format('YYYY-MM-DD HH:mm:ss');
             post.end = calEvent.end.format('YYYY-MM-DD HH:mm:ss');
             post.title = calEvent.title;
-            $.ajax({
+            /*$.ajax({
               headers: {
                 'X-CSRF-TOKEN': $('meta[name=\"csrf-token\"]').attr('content')
               },
@@ -247,76 +254,17 @@ class AppointmentController extends Controller
               success: function(data) {
                 return data;
               }
-            });
+            });*/
             return true;
           }",  // CREATE NEW EVENT
-          'select' => "function(start, end, allDay) {
+          'select' => "function(start, end, jsEvent, view) {
             //var title = prompt('Event Title:');
             $('#createEventModal #apptStartTime').val(start);
             $('#createEventModal #apptEndTime').val(end);
-            $('#createEventModal #apptAllDay').val(allDay);
             $('#createEventModal').modal('show');
-
           }",
-/*
-            if(title) {
-
-              // first put an event in the local calendar display
-              $('#calendar-pbcc_calendar').fullCalendar('renderEvent',
-              {
-                title: title,
-                start: start,
-                end: end,
-                allDay: ! start.hasTime(),
-                provider: '" . $provider . "',
-                className: '" . $provider . "',
-
-              },
-              true
-              );
-
-              // save the event
-              var url = '/calendar/" . $provider_id . "/createEvent';
-              var post = {};
-              // local format
-              post.start = start.format('YYYY-MM-DD HH:mm:ss');
-              post.end = end.format('YYYY-MM-DD HH:mm:ss');
-              // google calendar format
-              post.gstart = start.toISOString();
-              post.gend = end.toISOString();
-              post.title = title;
-              post.allDay = ! start.hasTime();
-              $.ajax({
-                headers: {
-                  'X-CSRF-TOKEN': $('meta[name=\"csrf-token\"]').attr('content')
-                },
-                type: 'POST',
-                url: url,
-                data: post,
-                cache: false,
-                success: function(data) {
-                  return data;
-                }
-              });
-            }
-            $('#calendar-pbcc_calendar').fullCalendar('unselect');
-
-          }",*/
-          /*'eventRender' => "function(event, element) {
-            //console.log(event.id);
-            if(event.provider == 'JEG') {
-              //console.log('JEG');
-              element.addClass('JEG');
-            }
-            else if(event.provider == 'CH') {
-              //console.log('CH');
-              element.addClass('CH');
-            }
-          }",*/ //  playing with event width
+          //  playing with event width
           'eventAfterRender' => "function(event, element, view) {
-            /*if(typeof event.overlap != 'undefined' && event.overlap == false) {
-              $(element).css('width', '100%');
-            }*/
             if( $(element).css('z-index') == 1) {
               $(element).css('width', '33.33%');
               $(element).css('left', '0%');
@@ -329,6 +277,18 @@ class AppointmentController extends Controller
               $(element).css('width', '33.33%');
               $(element).css('left', '66.66%');
             }
+          }",
+          'eventRender' => "function(event, element) {
+            element.popover({
+              html:true,
+              title: event.title,
+              placement: 'right',
+              content: event.description
+            }).click(function() {
+              setTimeout(function() {
+                $('.popover').popover('hide');
+              }, 2000);
+            });
           }"
         ]);
 
@@ -337,17 +297,18 @@ class AppointmentController extends Controller
     }
 
     public function updateEvent(Request $request, $provider_id) {
-            //$nextSyncToken = DB::table('google_calendar_settings')->where('name', '=', 'calendar' . $id . '_syncToken')->value('value');
-
-      //dd($data);
       if($request->ajax())
       {
         $data = $request->all();
 
         $calendar = new GoogleCalendar;
 
-        $provider = DB::table('google_calendar_settings')->where('name', '=', 'calendar' . $provider_id . '_provider')->value('value');
-        $calendarId = DB::table('google_calendar_settings')->where('name', '=', 'calendar' . $provider_id . '_id')->value('value');
+        $provider = Provider::find($provider_id);
+        $provider_calendar = $provider->calendar;
+        $calendar_id = $provider_calendar->calendar_id;
+
+        //$provider = DB::table('google_calendar_settings')->where('name', '=', 'calendar' . $provider_id . '_provider')->value('value');
+        //$calendarId = DB::table('google_calendar_settings')->where('name', '=', 'calendar' . $provider_id . '_id')->value('value');
 
         $eventId = $data['id'];
 
@@ -382,13 +343,18 @@ class AppointmentController extends Controller
       {
         $data = $request->all();
         $calendar = new GoogleCalendar;
+        $patient = Patient::find($data['patientId']);
 
-        $provider = DB::table('google_calendar_settings')->where('name', '=', 'calendar' . $provider_id . '_provider')->value('value');
-        $calendarId = DB::table('google_calendar_settings')->where('name', '=', 'calendar' . $provider_id . '_id')->value('value');
+        $provider = Provider::find($provider_id);
+        $provider_calendar = $provider->calendar;
+        $calendar_id = $provider_calendar->calendar_id;
+
+        //$provider = DB::table('google_calendar_settings')->where('name', '=', 'calendar' . $provider_id . '_provider')->value('value');
+        //$calendarId = DB::table('google_calendar_settings')->where('name', '=', 'calendar' . $provider_id . '_id')->value('value');
 
         $event = new \Google_Service_Calendar_Event(array(
           'summary' => $data['title'],
-          //'description' => '7642624',
+          'description' => $patient->phone1,
           'start' => array(
             'dateTime' => $data['gstart'],
             'timeZone' => 'Canada/Newfoundland',
@@ -406,6 +372,10 @@ class AppointmentController extends Controller
         $appointment->end = $data['end'];
         $appointment->title = $data['title'];
         $appointment->allDay = $data['allDay'];
+        $appointment->phone1 = $patient->phone1;
+        $appointment->name = $patient->first_name . " " . $patient->last_name;
+        $appointment->chart_number = $patient->chart_number;
+        $appointment->provider = $provider->code;
         $appointment->uuid = $uuid;
         $appointment->save();
         $string = "Appointment #" . $appointment->id . " created - Start: " . $appointment->start . " - End " . $appointment->end;

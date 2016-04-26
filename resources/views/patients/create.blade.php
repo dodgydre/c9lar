@@ -43,7 +43,12 @@
             <div class="form-group">
               {{ Form::label('dob', 'Date of Birth:', array('class'=>'col-md-2 control-label')) }}
               <div class="col-md-10">
-                {{ Form::date('dob', \Carbon\Carbon::now(), array('class'=>'form-control')) }}
+                <div class="input-group date" data-provide="datepicker">
+                  <input type="text" class="form-control" id="dob" name="dob" value="{{ \Carbon\Carbon::now()->format('m/d/Y') }}"/>
+                  <div class="input-group-addon">
+                    <span class="glyphicon glyphicon-calendar"></span>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -99,21 +104,21 @@
             <div class="form-group">
               {{ Form::label('phone2', 'Phone 2:', array('class'=>'col-md-2 control-label')) }}
               <div class="col-md-10">
-                {{ Form::text('phone2', null, array('class'=>'form-control', 'placeholder'=>'(xxx) xxx-xxxx')) }}
+                {{ Form::text('phone2', null, array('class'=>'form-control phone_us', 'placeholder'=>'(xxx) xxx-xxxx')) }}
               </div>
             </div>
 
             <div class="form-group">
               {{ Form::label('phone3', 'Phone 3:', array('class'=>'col-md-2 control-label')) }}
               <div class="col-md-10">
-                {{ Form::text('phone3', null, array('class'=>'form-control', 'placeholder'=>'(xxx) xxx-xxxx')) }}
+                {{ Form::text('phone3', null, array('class'=>'form-control phone_us', 'placeholder'=>'(xxx) xxx-xxxx')) }}
               </div>
             </div>
 
             <div class="form-group">
               {{ Form::label('email', 'Email Address:', array('class'=>'col-md-2 control-label')) }}
               <div class="col-md-10">
-                {{ Form::text('email', null, array('class'=>'form-control', 'placeholder'=>'Email Address...')) }}
+                {{ Form::text('email', null, array('class'=>'form-control phone_us', 'placeholder'=>'Email Address...')) }}
               </div>
             </div>
 
@@ -124,5 +129,22 @@
     </div>
   </div>
 
+
+@endsection
+
+@section('scripts')
+
+  <script type="text/javascript">
+    $(document).ready(function() {
+      $('.phone_us').mask('(000) 000-0000');
+
+      $('.date').datepicker({
+          todayHighlight: 'TRUE',
+          autoclose: true,
+          keyboardNavigation: true,
+      });
+    });
+
+  </script>
 
 @endsection

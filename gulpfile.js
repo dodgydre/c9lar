@@ -28,7 +28,8 @@ elixir(function(mix) {
         '../../../node_modules/bootstrap-datepicker/dist/css/bootstrap-datepicker.css',
         '../../../node_modules/datatables/media/css/jquery.dataTables.css',
         '../../../node_modules/font-awesome/css/font-awesome.css',
-        '../../../node_modules/selectize/dist/css/selectize.bootstrap3.css'
+        '../../../node_modules/selectize/dist/css/selectize.bootstrap3.css',
+        '../../../node_modules/jasny-bootstrap/dist/css/jasny-bootstrap.css'
       ], 'public/css/lib.css')
       .styles([
         '../fullcalendar/fullcalendar.css'
@@ -37,9 +38,6 @@ elixir(function(mix) {
         'statement.css'
       ], 'public/css/statement.css')
       .browserify('app.js')
-      .scripts([
-        '../fullcalendar/fullcalendar.js',
-        '../fullcalendar/lib/moment.min.js'
-      ], 'public/js/calendar.js');
-
+      .scripts('fullcalendar.js', 'public/js/fullcalendar.js')
+      .scripts('moment.min.js', 'public/js/moment.min.js');
 });

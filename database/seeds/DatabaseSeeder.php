@@ -20,5 +20,7 @@ class DatabaseSeeder extends Seeder
         $this->call(PaymentSeeder::class);
         $this->call(EmployeeSeeder::class);
         $this->call(PaystubSeeder::class);
+        $this->call(ProviderSeeder::class);
+        $this->call(CalendarSeeder::class);
     }
 }

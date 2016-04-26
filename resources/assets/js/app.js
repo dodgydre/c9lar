@@ -1,10 +1,8 @@
 window.$ = window.jQuery = require('jquery');
 
-//require('../../../node_modules/bootstrap-sass/assets/javascripts/bootstrap');
 require('bootstrap-sass');
-//require('../../../node_modules/selectize/dist/js/standalone/selectize.js');
 require('selectize');
-//require('jasny-bootstrap');
+require('../../../node_modules/jasny-bootstrap/dist/js/jasny-bootstrap.js');
 require('datatables')();
 require('bootstrap-datepicker');
 require('jquery-mask-plugin');

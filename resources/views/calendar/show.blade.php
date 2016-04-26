@@ -11,7 +11,7 @@
 <div class="row">
 
   <div class="col-md-8 col-md-offset-2">
-    <h1>Schedule for {{ $provider }}</h1>
+    <h1>Schedule for {{ $provider->name() }}</h1>
 
   {!! $calendar->calendar() !!}
 
@@ -27,10 +27,9 @@
           <h3 id="myModalLabel1">Create Appointment</h3>
       </div>
       <div class="modal-body">
-        {!! Form::open(array('class'=>'form form-horizontal')) !!}
+        {!! Form::open(array('class'=>'form form-horizontal', 'id'=>'newEventForm')) !!}
           <input type="hidden" id="apptStartTime"/>
           <input type="hidden" id="apptEndTime"/>
-          <input type="hidden" id="apptAllDay" />
 
           <div class="control-group">
               <label class="control-label" for="patientName">Patient:</label>
@@ -49,19 +48,23 @@
 @endsection
 
 @section('scripts')
-  <!--<script src="/fullcalendar/lib/jquery.min.js"></script>-->
-  <!--<script src="/fullcalendar/lib/moment.min.js"></script>-->
-  <!--<script src="/fullcalendar/moment.range.min.js"></script>-->
-  <!--<script src="/fullcalendar/fullcalendar.js"></script>-->
-  <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.1/js/standalone/selectize.js"></script>-->
-  <script src="/js/calendar.js"></script>
+  <script src="/js/moment.min.js"></script>
+  <script src="/js/fullcalendar.js"></script>
+
   {!! $calendar->script() !!}
   <script>
   $(document).ready(function() {
-    $('#patientName').selectize({
+    // Add selectize dropdown
+    var $select = $('#patientName').selectize({
         create: false,
     });
 
+    // if the modal closes without being submitted still unselect the event.
+    $('#createEventModal').on('hidden.bs.modal', function () {
+      var selected = $select[0].selectize;
+      selected.clear();
+      $('#calendar-pbcc_calendar').fullCalendar('unselect');
+    });
 
     $('#submitButton').on('click', function(e){
       // We don't want this to act as a link so cancel the link action
@@ -69,29 +72,31 @@
       doSubmit();
     });
 
-    function doSubmit(){
+    function doSubmit()
+    {
       $("#createEventModal").modal('hide');
       console.log($('#apptStartTime').val());
       console.log($('#apptEndTime').val());
-      console.log($('#apptAllDay').val());
       console.log($('#patientName').val());
       //alert("form submitted");
+      title = $('#patientName').val();
 
-      //if(title) {
-      var start = moment(new Date($('#apptStartTime').val()));
-      var end = moment(new Date($('#apptEndTime').val()));
+      if(title)
+      {
+        var start = moment(new Date($('#apptStartTime').val()));
+        var end = moment(new Date($('#apptEndTime').val()));
 
         // first put an event in the local calendar display
-        $('#calendar-pbcc_calendar').fullCalendar('renderEvent', {
-            title: $("#patientName option:selected").text(),
-            start: start,
-            end: end,
-            allDay: ($('#apptAllDay').val() == "true"),
-            provider: '{{ $provider }}',
-            className: '{{ $provider }}',
-          },
-          true
-        );
+        $('#calendar-pbcc_calendar').fullCalendar('renderEvent',
+        {
+          title: $("#patientName option:selected").text(),
+          start: start,
+          end: end,
+          allDay: ($('#apptAllDay').val() == "true"),
+          provider: '{{ $provider->code }}',
+          className: '{{ $provider->code }}',
+          description: 'DESCRiption'
+        });
 
         // save the event
         var url = '/calendar/{{$provider_id}}/createEvent';
@@ -102,9 +107,10 @@
         // google calendar format
         post.gstart = start.toISOString();
         post.gend = end.toISOString();
-        post.title = $('#patientName').val();
+        post.patientId = $('#patientName').val();
+        post.title = $('#patientName option:selected').text();
         post.allDay = ($('#apptAllDay').val() == "true");
-        /*$.ajax({
+        $.ajax({
           headers: {
             'X-CSRF-TOKEN': $('meta[name=\"csrf-token\"]').attr('content')
           },
@@ -115,8 +121,8 @@
           success: function(data) {
             return data;
           }
-        });*/
-      //}
+        });
+      }
       $('#calendar-pbcc_calendar').fullCalendar('unselect');
     }
   });

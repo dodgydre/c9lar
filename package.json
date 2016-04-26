@@ -12,6 +12,7 @@
     "jquery-mask-plugin": "^1.14.0",
     "laravel-elixir": "^4.0.0",
     "laravel-elixir-vueify": "^1.0.0",
+    "moment": "^2.13.0",
     "selectize": "^0.12.1",
     "vue-resource": "^0.7.0"
   }

@@ -23,8 +23,10 @@ class CreateAppointmentsTable extends Migration
             $table->string('chart_number',8);
             $table->string('name', 50);  // patient name
             $table->string('phone1',15);
-            $table->string('color', 10);
-            $table->boolean('is_break');
+            $table->text('description')->nullable();
+            $table->string('type')->default('appointment');
+            //$table->string('color', 10);  // remove this one.  Add an entry for "appointment type"? -> patient, break, etc.
+            $table->boolean('is_break')->default(0);
             $table->uuid('uuid');
             $table->timestamps();
             $table->softDeletes();
