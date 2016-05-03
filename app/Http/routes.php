@@ -21,6 +21,28 @@ Route::get('testPrint', function() {
 });
 
 
+/**
+ * List all of the available routes...
+ * 
+ **/
+Route::get('routes', function() {
+$routeCollection = Route::getRoutes();
+
+echo "<table style='width:100%'>";
+    echo "<tr>";
+        echo "<td width='10%'><h4>HTTP Method</h4></td>";
+        echo "<td width='10%'><h4>Route</h4></td>";
+        echo "<td width='80%'><h4>Corresponding Action</h4></td>";
+    echo "</tr>";
+    foreach ($routeCollection as $value) {
+        echo "<tr>";
+            echo "<td>" . $value->getMethods()[0] . "</td>";
+            echo "<td>" . $value->getPath() . "</td>";
+            echo "<td>" . $value->getActionName() . "</td>";
+        echo "</tr>";
+    }
+echo "</table>";
+});
 
 
 /*
@@ -75,16 +97,16 @@ Route::group(['middleware' => 'web'], function () {
     Route::post('/patients/assignInsurer', ['as' => 'patients.assignInsurer', 'uses' => 'PatientController@assignInsurer']);
 
     // Add Charge and Payment to patient.  patient_id is in the $request variable
-    Route::post('/patients/addCharge', ['as' => 'patients.addCharge', 'uses' => 'PatientController@addCharge']);
-    Route::post('/patients/addPayment', ['as' => 'patients.addPayment', 'uses' => 'PatientController@addPayment']);
+    Route::post('/patients/addCharge', ['as' => 'patients.addCharge', 'uses' => 'TransactionController@addCharge']);
+    Route::post('/patients/addPayment', ['as' => 'patients.addPayment', 'uses' => 'TransactionController@addPayment']);
 
     // Apply a payment to {patient} by {payor}  (FORM)
-    Route::get('/patients/{id}/apply/{transaction}/from/{payor}', ['as' => 'patients.applyPaymentForm', 'uses' => 'PatientController@applyPaymentForm']);
+    Route::get('/patients/{id}/apply/{transaction}/from/{payor}', ['as' => 'patients.applyPaymentForm', 'uses' => 'TransactionController@applyPaymentForm']);
     // apple a payment (POST)
-    Route::post('/patients/applyPayment', ['as' => 'patients.applyPayment','uses' => 'PatientController@applyPayment']);
+    Route::post('/patients/applyPayment', ['as' => 'patients.applyPayment','uses' => 'TransactionController@applyPayment']);
 
     // Apply a payment to the most recent charges until all empty.
-    Route::post('/applyPaymentsToRecent', ['as' => 'patients.applyPaymentsToMostRecent', 'uses' => 'PatientController@applyPaymentsToMostRecent']);
+    Route::post('/applyPaymentsToRecent', ['as' => 'patients.applyPaymentsToMostRecent', 'uses' => 'TransactionController@applyPaymentsToMostRecent']);
 
 
 
@@ -107,10 +129,12 @@ Route::group(['middleware' => 'web'], function () {
     // Calendar routes  (TODO: TESTERS... remove these)
     Route::get('/admin/calendar', 'AdminController@getCalendarID');
     Route::get('/admin/calendar/add', 'AdminController@addCalendarEvent');
+    
+    
     // View transaction logs (TODO: Generate similar routes for other logs.  Add logs elsewhere)
     Route::get('/admin/transactionLog/user/{id}', [
       'as'  => 'admin.transactionLog',
-      'uses' => 'adminController@listTransactionLogs'
+      'uses' => 'AdminController@listTransactionLogs'
     ]);
 
 
